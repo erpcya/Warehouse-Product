@@ -84,6 +84,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 				"WHERE wp.AD_Table_ID = ? " +
 				"AND wpl.AD_Org_ID = ? " +
 				"AND wpl.M_Product_ID = ? " +
+				"AND wpl.IsActive = 'Y' " +
 				(p_M_Warehouse_ID != 0? "AND wpl.M_Warehouse_ID = " + p_M_Warehouse_ID + " ": "") +
 				"AND wpl.IsActive = 'Y' " +
 				"ORDER BY wpl.SeqNo", new Object[]{p_AD_Table_ID, p_AD_Org_ID, p_M_Product_ID});
