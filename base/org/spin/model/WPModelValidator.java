@@ -175,6 +175,7 @@ public class WPModelValidator implements ModelValidator {
 				"FROM LVE_WarehouseProduct wp " +
 				"INNER JOIN AD_Table t ON(t.AD_Table_ID = wp.AD_Table_ID) " +
 				"WHERE wp.AD_Client_ID = ? " +
+				"AND wp.IsActive = 'Y' " +
 				"GROUP BY t.AD_Table_ID, t.TableName " +
 				"ORDER BY t.TableName", false, getAD_Client_ID());
 		//	Valid Tables
