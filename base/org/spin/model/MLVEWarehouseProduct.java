@@ -17,8 +17,11 @@
 package org.spin.model;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
+import org.compiere.model.Query;
 import org.compiere.util.CCache;
 import org.compiere.util.DB;
 
@@ -85,14 +88,57 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 				"AND wpl.AD_Org_ID = ? " +
 				"AND wpl.M_Product_ID = ? " +
 				"AND wpl.IsActive = 'Y' " +
-				(p_M_Warehouse_ID != 0? "AND wpl.M_Warehouse_ID = " + p_M_Warehouse_ID + " ": "") +
-				"AND wpl.IsActive = 'Y' " +
+				"AND wpl.M_Warehouse_ID = " + p_M_Warehouse_ID + " " +
+				"AND wp.IsActive = 'Y' " +
 				"ORDER BY wpl.SeqNo", new Object[]{p_AD_Table_ID, p_AD_Org_ID, p_M_Product_ID});
 		//	Return
 		if(m_LVE_WarehouseProductLine_ID <= 0)
 			return null;
 		//	
 		return MLVEWarehouseProductLine.get(ctx, m_LVE_WarehouseProductLine_ID);
+	}
+	
+	/**
+	 * Get Warehouse Product Combination
+	 * @param ctx
+	 * @param p_AD_Table_ID
+	 * @param p_AD_Org_ID
+	 * @param p_M_Product_ID
+	 * @param trxName
+	 * @return
+	 */
+	public static MLVEWarehouseProductLine[] getWPCombination(Properties ctx, int p_AD_Table_ID, 
+			int p_AD_Org_ID, int p_M_Product_ID, String trxName) {
+		//	Get Warehouse Configuration
+		//	Where Clause
+		StringBuffer whereClause = new StringBuffer();
+		//	Parameters
+		ArrayList<Object> params = new ArrayList<Object>();
+		//	Add Org
+		whereClause.append(I_LVE_WarehouseProductLine.COLUMNNAME_AD_Org_ID).append(" = ?");
+		params.add(p_AD_Org_ID);
+		//	Add Product
+		whereClause.append(" AND ").append(I_LVE_WarehouseProductLine.COLUMNNAME_M_Product_ID).append(" = ?");
+		params.add(p_M_Product_ID);
+		//	Add Header Validation
+		whereClause.append(" AND EXISTS(SELECT 1 " +
+				"FROM LVE_WarehouseProduct wp " +
+				"WHERE wp.LVE_WarehouseProduct_ID = LVE_WarehouseProductLine.LVE_WarehouseProduct_ID " +
+				"AND wp.AD_Table_ID = ? " +
+				"AND wp.IsActive = 'Y')");
+		params.add(p_AD_Table_ID);		
+		//	Valid
+		//	Get Combination
+		List<MLVEWarehouseProductLine> list = new Query(ctx, I_LVE_WarehouseProductLine.Table_Name, whereClause.toString(), trxName)
+				.setParameters(params)
+				.setOnlyActiveRecords(true)
+				.setOrderBy(I_LVE_WarehouseProductLine.COLUMNNAME_SeqNo)
+				.<MLVEWarehouseProductLine>list();
+		//	Convert to Array
+		MLVEWarehouseProductLine [] combinations = new MLVEWarehouseProductLine[list.size()];
+		list.toArray(combinations);
+		//	Return
+		return combinations;
 	}
 	
 	/**
