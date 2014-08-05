@@ -18,11 +18,10 @@ package org.spin.model;
 
 import java.math.BigDecimal;
 
-import org.compiere.model.I_C_Cash;
 import org.compiere.model.MClient;
 import org.compiere.model.MColumn;
-import org.compiere.model.MInvoice;
 import org.compiere.model.MStorage;
+import org.compiere.model.MWarehouse;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
@@ -60,9 +59,6 @@ public class WPModelValidator implements ModelValidator {
 		} else {
 			log.info("Initializing global validator: " + this.toString());
 		}
-		//	Add Timing change in C_Order and C_Invoice
-		engine.addDocValidate(MInvoice.Table_Name, this);
-		engine.addDocValidate(I_C_Cash.Table_Name, this);
 		//	Add Warehouse Product Listener
 		addWPListener(engine, this);
 	}
@@ -124,36 +120,67 @@ public class WPModelValidator implements ModelValidator {
 		if(m_Qty == null)
 			m_Qty = Env.ZERO;
 		//	Valid Configuration
-		MLVEWarehouseProductLine configLine = MLVEWarehouseProduct
-				.getWarehouseProduct(po.getCtx(), po.get_Table_ID(), m_AD_Org_ID, m_M_Product_ID, 0,po.get_TrxName());
-		if(configLine == null)
-			return null;
-		//	Before New
-		if(type == TYPE_BEFORE_NEW) {
-			//	Set Warehouse
-			po.set_ValueOfColumn(m_Warehouse_Column, configLine.getM_Warehouse_ID());
-			//	Valid Stock
-		} else if(type == TYPE_BEFORE_CHANGE) {
-			configLine = MLVEWarehouseProduct.getWarehouseProduct(po.getCtx(), po.get_Table_ID(), 
-					m_AD_Org_ID, m_M_Product_ID, m_OldWarehouse_ID,po.get_TrxName());
+		if(type == TYPE_BEFORE_CHANGE) {
+			MLVEWarehouseProductLine configLine = MLVEWarehouseProduct.getWarehouseProduct(po.getCtx(), po.get_Table_ID(), 
+					m_AD_Org_ID, m_M_Product_ID, m_OldWarehouse_ID, po.get_TrxName());
 			if(configLine == null)
 				return null;
 			m_M_Warehouse_ID = configLine.getM_Warehouse_ID();
 			//	Valid Mandatory
-			if(configLine.isAlwaysSetMandatory())
+			if(configLine.isAlwaysSetMandatory()) {
 				po.set_ValueOfColumn(m_Warehouse_Column, m_OldWarehouse_ID);
-		}
-		//	Valid Stock
-		if(configLine.isMustBeStocked()) {
-			BigDecimal available = MStorage.getQtyAvailable
-					(m_M_Warehouse_ID, 0, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
-			if (available == null)
-				available = Env.ZERO;
-			if (available.signum() == 0)
-				msg = "@NoQtyAvailable@";
-			else if (available.compareTo(m_Qty) < 0)
-				msg = "@InsufficientQtyAvailable@ [@QtyAvailable@ = " + available.toString() 
-							+ " @Qty@ = " + m_Qty + " @Difference@ = " + m_Qty.subtract(available) + "]";
+				m_M_Warehouse_ID = m_OldWarehouse_ID; 
+			}
+			//	Valid Stock
+			if(configLine.isMustBeStocked()) {
+				BigDecimal available = MStorage.getQtyAvailable
+						(m_M_Warehouse_ID, 0, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
+				if (available == null)
+					available = Env.ZERO;
+				if (available.signum() == 0)
+					msg = "@NoQtyAvailable@";
+				else if (available.compareTo(m_Qty) < 0)
+					msg = "@InsufficientQtyAvailable@ [@QtyAvailable@ = " + available.toString() 
+								+ " @Qty@ = " + m_Qty + " @Difference@ = " + m_Qty.subtract(available) + "]";
+			}
+		} else if(type == TYPE_BEFORE_NEW) {
+			//	Get Combination
+			MLVEWarehouseProductLine [] combination = MLVEWarehouseProduct
+					.getWPCombination(po.getCtx(), po.get_Table_ID(), m_AD_Org_ID, m_M_Product_ID, po.get_TrxName());
+			//	Valid Combination
+			if(combination == null)
+				return null;
+			//	
+			BigDecimal available = Env.ZERO;
+			//	Iterate
+			for(MLVEWarehouseProductLine line : combination) {
+				//	Get Values
+				m_M_Warehouse_ID = line.getM_Warehouse_ID();
+				//	
+				if(line.isMustBeStocked()) {
+					available = MStorage.getQtyAvailable
+							(m_M_Warehouse_ID, 0, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
+					if (available == null)
+						available = Env.ZERO;
+					//	Set Available
+					available = available.subtract(m_Qty);
+					if (available.compareTo(Env.ZERO) >= 0)
+						break;
+				} else {
+					break;
+				}
+			}
+			//	
+			if (available.compareTo(m_Qty) < 0) {
+				MWarehouse warehouse = MWarehouse.get(po.getCtx(), m_M_Warehouse_ID);
+				//	Msg
+				msg = "@InsufficientQtyAvailable@ [@M_Warehouse_ID@ = " + warehouse.getName() 
+						+ ", @QtyAvailable@ = " + available.toString() 
+						+ " @Qty@ = " + m_Qty + " @Difference@ = " + m_Qty.subtract(available) + "]";
+			}
+			//	Set Warehouse
+			po.set_ValueOfColumn(m_Warehouse_Column, m_M_Warehouse_ID);
+			//	Valid Stock
 		}
 		//	Return
 		return Msg.parseTranslation(po.getCtx(), msg);

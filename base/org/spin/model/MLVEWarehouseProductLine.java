@@ -19,6 +19,9 @@ package org.spin.model;
 import java.sql.ResultSet;
 import java.util.Properties;
 
+import org.compiere.model.MOrg;
+import org.compiere.model.MProduct;
+import org.compiere.model.MWarehouse;
 import org.compiere.util.CCache;
 
 /**
@@ -82,5 +85,17 @@ public class MLVEWarehouseProductLine extends X_LVE_WarehouseProductLine {
 		}
 		//	Return
 		return wpLine;
+	}
+	
+	@Override
+	public String toString() {
+		MOrg org = MOrg.get(getCtx(), getAD_Org_ID());
+		MWarehouse warehouse = MWarehouse.get(getCtx(), getM_Warehouse_ID());
+		MProduct product = MProduct.get(getCtx(), getM_Product_ID());
+		//	
+		return (org != null? "Org = " + org.getName(): "") 
+				+ (warehouse != null? "\nWarehouse = " + warehouse.getName(): "")
+				+ (product != null? "\nProduct = " + product.getValue() + " - " + product.getName(): "")
+				+ "\nSeqNo = " + getSeqNo();
 	}
 }
