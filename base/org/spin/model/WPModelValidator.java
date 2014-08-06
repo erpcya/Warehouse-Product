@@ -101,10 +101,12 @@ public class WPModelValidator implements ModelValidator {
 		//	do It
 		//	Get From Table
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
-				.getFromTable(po.getCtx(), po.get_Table_ID());
+				.getFromTable(po.getCtx(), po.get_Table_ID(), 
+						po.get_ValueAsBoolean(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx));
 		//	Valid Null
 		if(wProductConfig == null)
 			return null;
+		
 		//	Get Column Names
 		String m_Product_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getProduct_Column_ID());
 		String m_Attribute_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getAttribute_Column_ID());

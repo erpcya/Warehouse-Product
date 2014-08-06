@@ -146,10 +146,11 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 27/07/2014, 00:16:54
 	 * @param ctx
 	 * @param p_AD_Table_ID
+	 * @param p_IsSOTrx
 	 * @return
 	 * @return MLVEWarehouseProduct
 	 */
-	public static MLVEWarehouseProduct getFromTable(Properties ctx, int p_AD_Table_ID) {
+	public static MLVEWarehouseProduct getFromTable(Properties ctx, int p_AD_Table_ID, boolean p_IsSOTrx) {
 		if (p_AD_Table_ID <= 0)
 			return null;
 		//
@@ -160,7 +161,9 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 		int m_LVE_WarehouseProduct_ID = DB.getSQLValue(null, "SELECT wp.LVE_WarehouseProduct_ID " +
 				"FROM LVE_WarehouseProduct wp " + 
 				"WHERE wp.AD_Table_ID = ? " +
-				"AND wp.IsActive = 'Y' ", p_AD_Table_ID);
+				"AND wp.IsActive = 'Y' " +
+				"AND wp.IsSOTrx = ? ", 
+				new Object[] {p_AD_Table_ID, (p_IsSOTrx? "Y": "N")});
 		//	
 		wProduct = new MLVEWarehouseProduct(ctx, m_LVE_WarehouseProduct_ID, null);
 		if (wProduct.get_ID() == m_LVE_WarehouseProduct_ID) {
