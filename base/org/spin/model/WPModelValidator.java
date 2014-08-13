@@ -115,7 +115,10 @@ public class WPModelValidator implements ModelValidator {
 		//	Get Values
 		int m_AD_Org_ID = po.getAD_Org_ID();
 		int m_M_Product_ID = po.get_ValueAsInt(m_Product_Column);
-		int m_M_AttributeSetInstance_ID = po.get_ValueAsInt(m_Attribute_Column);
+		int m_M_AttributeSetInstance_ID = 0;
+		if(m_Attribute_Column != null)
+			m_M_AttributeSetInstance_ID = po.get_ValueAsInt(m_Attribute_Column);
+		
 		int m_M_Warehouse_ID = po.get_ValueAsInt(m_Warehouse_Column);
 		int m_OldWarehouse_ID = po.get_ValueOldAsInt(m_Warehouse_Column);
 		BigDecimal m_Qty = (BigDecimal) po.get_Value(m_Qty_Column);
