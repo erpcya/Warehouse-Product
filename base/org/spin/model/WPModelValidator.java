@@ -101,8 +101,7 @@ public class WPModelValidator implements ModelValidator {
 		//	do It
 		//	Get From Table
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
-				.getFromTable(po.getCtx(), po.get_Table_ID(), 
-						po.get_ValueAsBoolean(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx));
+				.getFromTable(po.getCtx(), po.get_Table_ID(), true);
 		//	Valid Null
 		if(wProductConfig == null)
 			return null;
@@ -157,12 +156,15 @@ public class WPModelValidator implements ModelValidator {
 				return null;
 			//	
 			BigDecimal available = Env.ZERO;
+			//	Is Stocked
+			boolean isMustBeStocked = false;
 			//	Iterate
 			for(MLVEWarehouseProductLine line : combination) {
 				//	Get Values
 				m_M_Warehouse_ID = line.getM_Warehouse_ID();
 				//	
-				if(line.isMustBeStocked()) {
+				isMustBeStocked = line.isMustBeStocked();
+				if(isMustBeStocked) {
 					available = MStorage.getQtyAvailable
 							(m_M_Warehouse_ID, 0, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
 					if (available == null)
@@ -176,7 +178,8 @@ public class WPModelValidator implements ModelValidator {
 				}
 			}
 			//	
-			if (available.compareTo(m_Qty) < 0) {
+			if (available.compareTo(m_Qty) < 0
+					&& isMustBeStocked) {
 				MWarehouse warehouse = MWarehouse.get(po.getCtx(), m_M_Warehouse_ID);
 				//	Msg
 				msg = "@InsufficientQtyAvailable@ [@M_Warehouse_ID@ = " + warehouse.getName() 
