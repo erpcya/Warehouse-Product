@@ -99,9 +99,12 @@ public class WPModelValidator implements ModelValidator {
 		//	
 		String msg = null;
 		//	do It
-		//	Get From Table
+		String Sql=DB.getSQLValueString(null,"SELECT co.IsSOTrx " +
+				"FROM C_Order co " + 
+				"WHERE co.C_Order_ID= ? ", po.get_ValueAsInt("C_Order_ID"));
+		boolean IsSotrx=Sql.equals("Y")  ? true : false;
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
-				.getFromTable(po.getCtx(), po.get_Table_ID(), true);
+				.getFromTable(po.getCtx(), po.get_Table_ID(), IsSotrx);
 		//	Valid Null
 		if(wProductConfig == null)
 			return null;
