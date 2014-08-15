@@ -13,3 +13,7 @@ CREATE TABLE LVE_WarehouseProductLine (AD_Client_ID NUMERIC(10) NOT NULL, AD_Org
 ALTER TABLE LVE_WarehouseProduct ADD COLUMN IsSOTrx CHAR(1) DEFAULT NULL CHECK (IsSOTrx IN ('Y','N'))
 ;
 
+-- 15/08/2014 09:29:27 AM VET
+-- Warehouse Product
+ALTER TABLE LVE_WarehouseProduct ADD COLUMN Parent_Column_ID NUMERIC(10) DEFAULT NULL 
+;
