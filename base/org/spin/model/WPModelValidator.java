@@ -22,10 +22,7 @@ import org.compiere.model.MClient;
 import org.compiere.model.MColumn;
 import org.compiere.model.MQuery;
 import org.compiere.model.MStorage;
-import org.compiere.model.MTable;
 import org.compiere.model.MWarehouse;
-import org.compiere.model.MLookupInfo;
-import org.compiere.model.MLookupFactory;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
@@ -93,10 +90,9 @@ public class WPModelValidator implements ModelValidator {
 	 */
 	public boolean getPo(PO po,String m_table,String m_Parent_Column_ID) {
 		String IsSotrxSql=DB.getSQLValueString(null,"SELECT co.IsSOTrx " +
-				"FROM  " +m_table +
-				" co "+
-				"WHERE co." +m_Parent_Column_ID +
-				"= ? ", po.get_ValueAsInt("C_Order_ID"));
+				"FROM  " +m_table +" co "+
+				"WHERE co." +m_Parent_Column_ID +"= ? "
+				, po.get_ValueAsInt("C_Order_ID"));
 		if(IsSotrxSql.equals(null))
 		{
 			IsSotrxSql="N";

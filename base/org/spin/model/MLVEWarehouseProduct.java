@@ -186,8 +186,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 				"FROM LVE_WarehouseProduct wp " + 
 				"WHERE wp.AD_Table_ID = ? " +
 				"AND wp.IsActive = 'Y' " +
-				"AND wp.IsSOTrx = 'Y' ", 
-				p_AD_Table_ID);
+				"AND wp.IsSOTrx = 'Y' ",p_AD_Table_ID);
 		//	
 		wProduct = new MLVEWarehouseProduct(ctx, m_LVE_WarehouseProduct_ID, null);
 		if (wProduct.get_ID() == m_LVE_WarehouseProduct_ID) {
