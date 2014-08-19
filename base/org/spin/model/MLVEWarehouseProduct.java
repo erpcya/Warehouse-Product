@@ -37,7 +37,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	private static final long serialVersionUID = 1994668061472867078L;
 	
 	/** Cache */
-	private static CCache<Integer, MLVEWarehouseProduct> s_cacheByTable = new CCache<Integer, MLVEWarehouseProduct>(Table_Name, 10);
+	public static CCache<Integer, MLVEWarehouseProduct> s_cacheByTable = new CCache<Integer, MLVEWarehouseProduct>(Table_Name, 10);
 
 	/**
 	 * *** Constructor ***
@@ -164,6 +164,30 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 				"AND wp.IsActive = 'Y' " +
 				"AND wp.IsSOTrx = ? ", 
 				new Object[] {p_AD_Table_ID, (p_IsSOTrx? "Y": "N")});
+		//	
+		wProduct = new MLVEWarehouseProduct(ctx, m_LVE_WarehouseProduct_ID, null);
+		if (wProduct.get_ID() == m_LVE_WarehouseProduct_ID) {
+			s_cacheByTable.put(p_AD_Table_ID, wProduct);
+		} else {
+			wProduct = null;
+		}
+		//	Return
+		return wProduct;
+	}
+	public static MLVEWarehouseProduct getFromTableParent(Properties ctx, int p_AD_Table_ID) {
+		if (p_AD_Table_ID <= 0)
+			return null;
+		//
+		MLVEWarehouseProduct wProduct = s_cacheByTable.get(p_AD_Table_ID);
+		if (wProduct != null)
+			return wProduct;
+		//	Get From DB
+		int m_LVE_WarehouseProduct_ID = DB.getSQLValue(null, "SELECT wp.LVE_WarehouseProduct_ID " +
+				"FROM LVE_WarehouseProduct wp " + 
+				"WHERE wp.AD_Table_ID = ? " +
+				"AND wp.IsActive = 'Y' " +
+				"AND wp.IsSOTrx = 'Y' ", 
+				p_AD_Table_ID);
 		//	
 		wProduct = new MLVEWarehouseProduct(ctx, m_LVE_WarehouseProduct_ID, null);
 		if (wProduct.get_ID() == m_LVE_WarehouseProduct_ID) {
