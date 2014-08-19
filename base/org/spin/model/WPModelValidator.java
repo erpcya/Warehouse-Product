@@ -90,9 +90,10 @@ public class WPModelValidator implements ModelValidator {
 	 */
 	public boolean getPo(PO po,String m_table,String m_Parent_Column_ID) {
 		String IsSotrxSql=DB.getSQLValueString(null,"SELECT co.IsSOTrx " +
-				"FROM  " +m_table +" co "+
-				"WHERE co." +m_Parent_Column_ID +"= ? "
-				, po.get_ValueAsInt("C_Order_ID"));
+				"FROM  " +m_table +
+				" co "+
+				"WHERE co." +m_Parent_Column_ID +
+				"= ? ", po.get_ValueAsInt(m_Parent_Column_ID));
 		if(IsSotrxSql.equals(null))
 		{
 			IsSotrxSql="N";
@@ -116,8 +117,8 @@ public class WPModelValidator implements ModelValidator {
 		MLVEWarehouseProduct wProductTable = MLVEWarehouseProduct
 				.getFromTableParent(po.getCtx(), po.get_Table_ID());
 		String m_Parent_Column_ID = MColumn.getColumnName(po.getCtx(), wProductTable.getParent_Column_ID());
-		String m_table = MQuery.getZoomTableName(m_Parent_Column_ID);	
-		boolean IsSotrx=getPo(po,m_table,m_Parent_Column_ID);
+		String m_Table = MQuery.getZoomTableName(m_Parent_Column_ID);	
+		boolean IsSotrx=getPo(po,m_Table,m_Parent_Column_ID);
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
 				.getFromTable(po.getCtx(), po.get_Table_ID(),IsSotrx);
 		//	Valid Null
