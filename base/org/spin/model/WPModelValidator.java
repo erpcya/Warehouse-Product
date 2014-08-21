@@ -88,13 +88,19 @@ public class WPModelValidator implements ModelValidator {
 	 * @return
 	 * @return String
 	 */
-	public String getPo(PO po,String m_table,String m_Parent_Column_ID) {
+	public boolean getPo(PO po,String m_table,String m_Parent_Column_ID) {
 		String IsSotrxSql=DB.getSQLValueString(null,"SELECT co.IsSOTrx " +
 				"FROM  " +m_table +
 				" co "+
 				"WHERE co." +m_Parent_Column_ID +
-				"= ? ", po.get_ValueAsInt(m_Parent_Column_ID));		
-		return IsSotrxSql;
+				"= ? ", po.get_ValueAsInt(m_Parent_Column_ID));
+		if(IsSotrxSql.equals(null))
+		{
+			IsSotrxSql="N";
+		}
+		boolean IsSotrx=IsSotrxSql.equals("Y")  ? true : false;
+		
+		return IsSotrx;
 	}
 	private String validWarehouseProduct(PO po, int type) {
 		//	Valid Null
@@ -111,10 +117,14 @@ public class WPModelValidator implements ModelValidator {
 		MLVEWarehouseProduct wProductTable = MLVEWarehouseProduct
 				.getFromTableParent(po.getCtx(), po.get_Table_ID());
 		String m_Parent_Column_ID = MColumn.getColumnName(po.getCtx(), wProductTable.getParent_Column_ID());
-		String m_Table = MQuery.getZoomTableName(m_Parent_Column_ID);
-		String IsSotrxSql=getPo(po,m_Table,m_Parent_Column_ID);
+		String m_Table = MQuery.getZoomTableName(m_Parent_Column_ID);	
+		boolean IsSotrx=Env.isSOTrx(Env.getCtx());
+		if(!IsSotrx)
+		{
+			IsSotrx=getPo(po,m_Table,m_Parent_Column_ID);
+		}
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
-				.getFromTable(po.getCtx(), po.get_Table_ID(),po.get_ValueAsBoolean(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx));
+				.getFromTable(po.getCtx(), po.get_Table_ID(),IsSotrx);
 		//	Valid Null
 		if(wProductConfig == null)
 			return null;
