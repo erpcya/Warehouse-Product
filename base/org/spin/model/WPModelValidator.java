@@ -82,13 +82,13 @@ public class WPModelValidator implements ModelValidator {
 	
 	/**
 	 * Valid Warehouse Product Configuration
-	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 26/07/2014, 13:17:14
+	 * @author <a href="mailto:waditzar.c@gmail.com">Waditza Rivas</a> 26/07/2014, 13:17:14
 	 * @param po
 	 * @param type
 	 * @return
 	 * @return String
 	 */
-	public boolean getPo(PO po,String m_table,String m_Parent_Column_ID) {
+	public boolean getPO(PO po,String m_table,String m_Parent_Column_ID) {
 		String IsSotrxSql=DB.getSQLValueString(null,"SELECT co.IsSOTrx " +
 				"FROM  " +m_table +
 				" co "+
@@ -102,6 +102,16 @@ public class WPModelValidator implements ModelValidator {
 		
 		return IsSotrx;
 	}
+	
+	/**
+	 * Valid Warehouse by Product
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 22/08/2014, 22:19:04
+	 * @contributor <a href="mailto:waditzar.c@gmail.com">Waditza Rivas</a> 22/08/2014, 22:19:05
+	 * @param po
+	 * @param type
+	 * @return
+	 * @return String
+	 */
 	private String validWarehouseProduct(PO po, int type) {
 		//	Valid Null
 		if(po == null)
@@ -121,7 +131,7 @@ public class WPModelValidator implements ModelValidator {
 		boolean IsSotrx=Env.isSOTrx(Env.getCtx());
 		if(!IsSotrx)
 		{
-			IsSotrx=getPo(po,m_Table,m_Parent_Column_ID);
+			IsSotrx=getPO(po,m_Table,m_Parent_Column_ID);
 		}
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
 				.getFromTable(po.getCtx(), po.get_Table_ID(),IsSotrx);
