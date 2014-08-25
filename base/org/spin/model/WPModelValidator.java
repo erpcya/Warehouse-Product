@@ -124,6 +124,7 @@ public class WPModelValidator implements ModelValidator {
 		//	
 		String msg = null;
 		//	do It
+        //	Valid IsSotrx
 		MLVEWarehouseProduct wProductTable = MLVEWarehouseProduct
 				.getFromTableParent(po.getCtx(), po.get_Table_ID());
 		String m_Parent_Column_ID = MColumn.getColumnName(po.getCtx(), wProductTable.getParent_Column_ID());
