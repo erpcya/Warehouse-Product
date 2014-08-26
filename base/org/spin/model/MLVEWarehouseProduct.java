@@ -174,7 +174,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 		//	Return
 		return wProduct;
 	}
-	public static MLVEWarehouseProduct getFromTableParent(Properties ctx, int p_AD_Table_ID) {
+	public static MLVEWarehouseProduct getFromConfig(Properties ctx, int p_AD_Table_ID) {
 		if (p_AD_Table_ID <= 0)
 			return null;
 		//

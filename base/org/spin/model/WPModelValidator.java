@@ -22,6 +22,7 @@ import org.compiere.model.MClient;
 import org.compiere.model.MColumn;
 import org.compiere.model.MQuery;
 import org.compiere.model.MStorage;
+import org.compiere.model.MTable;
 import org.compiere.model.MWarehouse;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -88,19 +89,13 @@ public class WPModelValidator implements ModelValidator {
 	 * @return
 	 * @return String
 	 */
-	public boolean getPO(PO po,String m_table,String m_Parent_Column_ID) {
-		String IsSotrxSql=DB.getSQLValueString(null,"SELECT co.IsSOTrx " +
-				"FROM  " +m_table +
-				" co "+
-				"WHERE co." +m_Parent_Column_ID +
-				"= ? ", po.get_ValueAsInt(m_Parent_Column_ID));
-		if(IsSotrxSql.equals(null))
-		{
-			IsSotrxSql="N";
-		}
-		boolean IsSotrx=IsSotrxSql.equals("Y")  ? true : false;
-		
-		return IsSotrx;
+	public PO getParentPO(PO po, String m_Parent_Column_Name) {
+		//	get table name
+		String tablename = MQuery.getZoomTableName(m_Parent_Column_Name);
+		MTable table = MTable.get(po.getCtx(), tablename);
+		PO parent = table.getPO(po.get_ValueAsInt(""), po.get_TrxName());
+		//	Return
+		return parent;
 	}
 	
 	/**
@@ -124,34 +119,70 @@ public class WPModelValidator implements ModelValidator {
 		//	
 		String msg = null;
 		//	do It
-        //	Valid IsSotrx
-		MLVEWarehouseProduct wProductTable = MLVEWarehouseProduct
-				.getFromTableParent(po.getCtx(), po.get_Table_ID());
-		String m_Parent_Column_ID = MColumn.getColumnName(po.getCtx(), wProductTable.getParent_Column_ID());
-		String m_Table = MQuery.getZoomTableName(m_Parent_Column_ID);	
-		boolean IsSotrx=Env.isSOTrx(Env.getCtx());
-		if(!IsSotrx)
-		{
-			IsSotrx=getPO(po,m_Table,m_Parent_Column_ID);
-		}
+        
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
-				.getFromTable(po.getCtx(), po.get_Table_ID(),IsSotrx);
+				.getFromConfig(po.getCtx(), po.get_Table_ID());
+		String m_Parent_Column_Name = MColumn.getColumnName(po.getCtx(), wProductConfig.getParent_Column_ID());
 		//	Valid Null
 		if(wProductConfig == null)
 			return null;
+		// Parent PO
+		PO parentPO = getParentPO(po, m_Parent_Column_Name);
+		
+		//	Get IsSOTrx
+		String isSOTrx = po.get_ValueAsString("IsSOTrx");
+		
+		//if Null isSOTrx
+		if(isSOTrx == null 
+				 && parentPO != null)
+		{
+			isSOTrx = parentPO.get_ValueAsString("IsSOTrx");
+		}//end if
+		
+		MLVEWarehouseProduct wProductConfigIsSOTrx = MLVEWarehouseProduct
+				.getFromTable(po.getCtx(), po.get_Table_ID(),po.get_ValueAsBoolean(isSOTrx));
 		
 		//	Get Column Names
-		String m_Product_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getProduct_Column_ID());
-		String m_Attribute_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getAttribute_Column_ID());
-		String m_Warehouse_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getWarehouse_Column_ID());
-		String m_Qty_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getQty_Column_ID());
+		String m_Product_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getProduct_Column_ID());
+		String m_Attribute_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getAttribute_Column_ID());
+		String m_Warehouse_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getWarehouse_Column_ID());
+		String m_Qty_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getQty_Column_ID());
+		String m_Locator_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getQty_Column_ID());
+		//if Null m_Product_Column
+		if(m_Product_Column == null 
+				&& parentPO != null)
+		{
+			m_Product_Column = parentPO.get_ValueAsString("Product_Column_ID");
+		}//end if
+		
+		//if Null m_Attribute_Column
+		if(m_Attribute_Column == null 
+				&& parentPO != null)
+		{
+			m_Attribute_Column = parentPO.get_ValueAsString("Attribute_Column_ID");
+		}//end if
+		
+		//if Null m_Warehouse_Column
+		if(m_Warehouse_Column == null 
+				&& parentPO != null)
+		{
+			m_Warehouse_Column = parentPO.get_ValueAsString("Warehouse_Column_ID");
+		}//end if
+		
+		//if Null m_Qty_Column
+		if(m_Qty_Column == null 
+				&& parentPO != null)
+		{
+			m_Qty_Column = parentPO.get_ValueAsString("Qty_Column_ID");
+		}//end if
+		
 		//	Get Values
 		int m_AD_Org_ID = po.getAD_Org_ID();
 		int m_M_Product_ID = po.get_ValueAsInt(m_Product_Column);
 		int m_M_AttributeSetInstance_ID = 0;
 		if(m_Attribute_Column != null)
 			m_M_AttributeSetInstance_ID = po.get_ValueAsInt(m_Attribute_Column);
-		
+	
 		int m_M_Warehouse_ID = po.get_ValueAsInt(m_Warehouse_Column);
 		int m_OldWarehouse_ID = po.get_ValueOldAsInt(m_Warehouse_Column);
 		BigDecimal m_Qty = (BigDecimal) po.get_Value(m_Qty_Column);
