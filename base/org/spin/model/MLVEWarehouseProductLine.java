@@ -23,6 +23,7 @@ import org.compiere.model.MOrg;
 import org.compiere.model.MProduct;
 import org.compiere.model.MWarehouse;
 import org.compiere.util.CCache;
+import org.compiere.util.DB;
 
 /**
  * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a>
@@ -98,4 +99,19 @@ public class MLVEWarehouseProductLine extends X_LVE_WarehouseProductLine {
 				+ (product != null? "\nProduct = " + product.getValue() + " - " + product.getName(): "")
 				+ "\nSeqNo = " + getSeqNo();
 	}
+	
+	@Override
+	protected boolean beforeSave(boolean newRecord) {
+		super.beforeSave(newRecord);
+
+		if(newRecord){
+			int seqNo = DB.getSQLValue(get_TrxName(),"SELECT NVL(MAX(SeqNo),0)+10 AS DefaultValue " +
+				"FROM LVE_WarehouseProductLine WHERE LVE_WarehouseProduct_ID= ?",getLVE_WarehouseProduct_ID());
+			this.setSeqNo(seqNo);
+		}
+		//	Return
+		return true;
+	}//	End beforeSave
+	
+	
 }
