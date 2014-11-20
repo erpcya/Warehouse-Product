@@ -31,7 +31,7 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20140818L;
+	private static final long serialVersionUID = 20141120L;
 
     /** Standard Constructor */
     public X_LVE_WarehouseProduct (Properties ctx, int LVE_WarehouseProduct_ID, String trxName)
@@ -153,6 +153,31 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 		return false;
 	}
 
+	public org.compiere.model.I_AD_Column getLocator_Column() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
+			.getPO(getLocator_Column_ID(), get_TrxName());	}
+
+	/** Set Locator Column.
+		@param Locator_Column_ID Locator Column	  */
+	public void setLocator_Column_ID (int Locator_Column_ID)
+	{
+		if (Locator_Column_ID < 1) 
+			set_Value (COLUMNNAME_Locator_Column_ID, null);
+		else 
+			set_Value (COLUMNNAME_Locator_Column_ID, Integer.valueOf(Locator_Column_ID));
+	}
+
+	/** Get Locator Column.
+		@return Locator Column	  */
+	public int getLocator_Column_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_Locator_Column_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Warehouse of Product.
 		@param LVE_WarehouseProduct_ID Warehouse of Product	  */
 	public void setLVE_WarehouseProduct_ID (int LVE_WarehouseProduct_ID)
@@ -203,7 +228,7 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
 			.getPO(getParent_Column_ID(), get_TrxName());	}
 
-	/** Set Link Column.
+	/** Set Parent Column.
 		@param Parent_Column_ID 
 		The link column on the parent tab.
 	  */
@@ -215,7 +240,7 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 			set_Value (COLUMNNAME_Parent_Column_ID, Integer.valueOf(Parent_Column_ID));
 	}
 
-	/** Get Link Column.
+	/** Get Parent Column.
 		@return The link column on the parent tab.
 	  */
 	public int getParent_Column_ID () 

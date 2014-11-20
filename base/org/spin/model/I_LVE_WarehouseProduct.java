@@ -131,6 +131,17 @@ public interface I_LVE_WarehouseProduct
 	  */
 	public boolean isSOTrx();
 
+    /** Column name Locator_Column_ID */
+    public static final String COLUMNNAME_Locator_Column_ID = "Locator_Column_ID";
+
+	/** Set Locator Column	  */
+	public void setLocator_Column_ID (int Locator_Column_ID);
+
+	/** Get Locator Column	  */
+	public int getLocator_Column_ID();
+
+	public org.compiere.model.I_AD_Column getLocator_Column() throws RuntimeException;
+
     /** Column name LVE_WarehouseProduct_ID */
     public static final String COLUMNNAME_LVE_WarehouseProduct_ID = "LVE_WarehouseProduct_ID";
 
@@ -156,12 +167,12 @@ public interface I_LVE_WarehouseProduct
     /** Column name Parent_Column_ID */
     public static final String COLUMNNAME_Parent_Column_ID = "Parent_Column_ID";
 
-	/** Set Link Column.
+	/** Set Parent Column.
 	  * The link column on the parent tab.
 	  */
 	public void setParent_Column_ID (int Parent_Column_ID);
 
-	/** Get Link Column.
+	/** Get Parent Column.
 	  * The link column on the parent tab.
 	  */
 	public int getParent_Column_ID();
@@ -191,10 +202,6 @@ public interface I_LVE_WarehouseProduct
     /** Column name Qty_Column_ID */
     public static final String COLUMNNAME_Qty_Column_ID = "Qty_Column_ID";
 
-    /** Column name Qty_Column_ID */
-    public static final String COLUMNNAME_Locator_Column_ID = "Locator_Column_ID";
-
-    
 	/** Set Qty Column	  */
 	public void setQty_Column_ID (int Qty_Column_ID);
 

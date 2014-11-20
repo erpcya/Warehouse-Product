@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for LVE_WarehouseProductLine
  *  @author Adempiere (generated) 
- *  @version Release 3.7.0LTS (1252452765) - $Id$ */
+ *  @version Release 3.7.0LTS - $Id$ */
 public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehouseProductLine, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20140806L;
+	private static final long serialVersionUID = 20141120L;
 
     /** Standard Constructor */
     public X_LVE_WarehouseProductLine (Properties ctx, int LVE_WarehouseProductLine_ID, String trxName)

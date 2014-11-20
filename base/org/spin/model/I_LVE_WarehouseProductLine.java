@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for LVE_WarehouseProductLine
  *  @author Adempiere (generated) 
- *  @version Release 3.7.0LTS (1252452765)
+ *  @version Release 3.7.0LTS
  */
 public interface I_LVE_WarehouseProductLine 
 {
