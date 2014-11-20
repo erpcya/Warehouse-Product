@@ -191,6 +191,10 @@ public interface I_LVE_WarehouseProduct
     /** Column name Qty_Column_ID */
     public static final String COLUMNNAME_Qty_Column_ID = "Qty_Column_ID";
 
+    /** Column name Qty_Column_ID */
+    public static final String COLUMNNAME_Locator_Column_ID = "Locator_Column_ID";
+
+    
 	/** Set Qty Column	  */
 	public void setQty_Column_ID (int Qty_Column_ID);
 

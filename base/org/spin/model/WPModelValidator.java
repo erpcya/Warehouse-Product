@@ -122,21 +122,21 @@ public class WPModelValidator implements ModelValidator {
         
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
 				.getFromConfig(po.getCtx(), po.get_Table_ID());
-		String m_Parent_Column_Name = MColumn.getColumnName(po.getCtx(), wProductConfig.getParent_Column_ID());
 		//	Valid Null
 		if(wProductConfig == null)
 			return null;
+		String m_Parent_Column_Name = MColumn.getColumnName(po.getCtx(), wProductConfig.getParent_Column_ID());
 		// Parent PO
 		PO parentPO = getParentPO(po, m_Parent_Column_Name);
 		
 		//	Get IsSOTrx
-		String isSOTrx = po.get_ValueAsString("IsSOTrx");
+		String isSOTrx = po.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx);
 		
 		//if Null isSOTrx
 		if(isSOTrx == null 
 				 && parentPO != null)
 		{
-			isSOTrx = parentPO.get_ValueAsString("IsSOTrx");
+			isSOTrx = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx);
 		}//end if
 		
 		MLVEWarehouseProduct wProductConfigIsSOTrx = MLVEWarehouseProduct
@@ -152,28 +152,34 @@ public class WPModelValidator implements ModelValidator {
 		if(m_Product_Column == null 
 				&& parentPO != null)
 		{
-			m_Product_Column = parentPO.get_ValueAsString("Product_Column_ID");
+			m_Product_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Product_Column_ID);
 		}//end if
 		
 		//if Null m_Attribute_Column
 		if(m_Attribute_Column == null 
 				&& parentPO != null)
 		{
-			m_Attribute_Column = parentPO.get_ValueAsString("Attribute_Column_ID");
+			m_Attribute_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Attribute_Column_ID);
 		}//end if
 		
 		//if Null m_Warehouse_Column
 		if(m_Warehouse_Column == null 
 				&& parentPO != null)
 		{
-			m_Warehouse_Column = parentPO.get_ValueAsString("Warehouse_Column_ID");
+			m_Warehouse_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Warehouse_Column_ID);
+		}//end if
+		//if Null m_Locator_Column
+		if(m_Locator_Column == null 
+				&& parentPO != null)
+		{
+			m_Locator_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Locator_Column_ID);
 		}//end if
 		
 		//if Null m_Qty_Column
 		if(m_Qty_Column == null 
 				&& parentPO != null)
 		{
-			m_Qty_Column = parentPO.get_ValueAsString("Qty_Column_ID");
+			m_Qty_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Qty_Column_ID);
 		}//end if
 		
 		//	Get Values
