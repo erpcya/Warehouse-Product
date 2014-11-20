@@ -84,6 +84,8 @@ public class WPModelValidator implements ModelValidator {
 	/**
 	 * Valid Warehouse Product Configuration
 	 * @author <a href="mailto:waditzar.c@gmail.com">Waditza Rivas</a> 26/07/2014, 13:17:14
+	 * @contributor <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 20/11/2014, 11:23:10
+	 * <li> Fixed error with record ID
 	 * @param po
 	 * @param type
 	 * @return
@@ -93,7 +95,7 @@ public class WPModelValidator implements ModelValidator {
 		//	get table name
 		String tablename = MQuery.getZoomTableName(m_Parent_Column_Name);
 		MTable table = MTable.get(po.getCtx(), tablename);
-		PO parent = table.getPO(po.get_ValueAsInt(""), po.get_TrxName());
+		PO parent = table.getPO(po.get_ValueAsInt(m_Parent_Column_Name), po.get_TrxName());
 		//	Return
 		return parent;
 	}
@@ -146,8 +148,8 @@ public class WPModelValidator implements ModelValidator {
 		String m_Product_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getProduct_Column_ID());
 		String m_Attribute_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getAttribute_Column_ID());
 		String m_Warehouse_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getWarehouse_Column_ID());
+		String m_Locator_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getLocator_Column_ID());
 		String m_Qty_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getQty_Column_ID());
-		String m_Locator_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getQty_Column_ID());
 		//if Null m_Product_Column
 		if(m_Product_Column == null 
 				&& parentPO != null)
@@ -185,12 +187,23 @@ public class WPModelValidator implements ModelValidator {
 		//	Get Values
 		int m_AD_Org_ID = po.getAD_Org_ID();
 		int m_M_Product_ID = po.get_ValueAsInt(m_Product_Column);
+		//	Handle Attribute
 		int m_M_AttributeSetInstance_ID = 0;
+		//	Valid Attribute
 		if(m_Attribute_Column != null)
 			m_M_AttributeSetInstance_ID = po.get_ValueAsInt(m_Attribute_Column);
-	
+		//	Handle Warehouse
 		int m_M_Warehouse_ID = po.get_ValueAsInt(m_Warehouse_Column);
 		int m_OldWarehouse_ID = po.get_ValueOldAsInt(m_Warehouse_Column);
+		//	Handle Locator
+		int m_M_Locator_ID = 0;
+		int m_OldLocator_ID = 0;
+		//	Valid Locator
+		if(m_Locator_Column != null) {
+			m_M_Locator_ID = po.get_ValueAsInt(m_Locator_Column);
+			m_OldLocator_ID = po.get_ValueOldAsInt(m_Locator_Column);
+		}
+		//	
 		BigDecimal m_Qty = (BigDecimal) po.get_Value(m_Qty_Column);
 		if(m_Qty == null)
 			m_Qty = Env.ZERO;
@@ -204,12 +217,17 @@ public class WPModelValidator implements ModelValidator {
 			//	Valid Mandatory
 			if(configLine.isAlwaysSetMandatory()) {
 				po.set_ValueOfColumn(m_Warehouse_Column, m_OldWarehouse_ID);
-				m_M_Warehouse_ID = m_OldWarehouse_ID; 
+				m_M_Warehouse_ID = m_OldWarehouse_ID;
+				//	Handle Locator
+				if(m_Locator_Column != null) {
+					po.set_ValueOfColumn(m_Locator_Column, m_OldLocator_ID);
+					m_M_Locator_ID = m_OldLocator_ID;
+				}
 			}
 			//	Valid Stock
 			if(configLine.isMustBeStocked()) {
 				BigDecimal available = MStorage.getQtyAvailable
-						(m_M_Warehouse_ID, 0, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
+						(m_M_Warehouse_ID, m_M_Locator_ID, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
 				if (available == null)
 					available = Env.ZERO;
 				if (available.signum() == 0)
@@ -237,7 +255,7 @@ public class WPModelValidator implements ModelValidator {
 				isMustBeStocked = line.isMustBeStocked();
 				if(isMustBeStocked) {
 					available = MStorage.getQtyAvailable
-							(m_M_Warehouse_ID, 0, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
+							(m_M_Warehouse_ID, m_M_Locator_ID, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
 					if (available == null)
 						available = Env.ZERO;
 					//	Set Available
@@ -259,6 +277,10 @@ public class WPModelValidator implements ModelValidator {
 			}
 			//	Set Warehouse
 			po.set_ValueOfColumn(m_Warehouse_Column, m_M_Warehouse_ID);
+			//	Set Locator
+			if(m_Locator_Column != null) {
+				po.set_ValueOfColumn(m_Locator_Column, m_M_Locator_ID);
+			}
 			//	Valid Stock
 		}
 		//	Return
