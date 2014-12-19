@@ -133,17 +133,21 @@ public class WPModelValidator implements ModelValidator {
 		
 		//	Get IsSOTrx
 		String isSOTrx = po.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx);
-		
+		//	Yamel Senih 2014-12-19, 12:47:55
+		//	Add Validation for Is Sales Order Transaction 
 		//if Null isSOTrx
 		if(isSOTrx == null 
 				 && parentPO != null)
 		{
 			isSOTrx = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx);
 		}//end if
-		
+		//	Valid Sales Order Transaction
+		if(isSOTrx == null)
+			isSOTrx = "N";
+		//	Get Warehouse Product
 		MLVEWarehouseProduct wProductConfigIsSOTrx = MLVEWarehouseProduct
-				.getFromTable(po.getCtx(), po.get_Table_ID(),po.get_ValueAsBoolean(isSOTrx));
-		
+				.getFromTable(po.getCtx(), po.get_Table_ID(), isSOTrx.equals("Y"));
+		//	End Yamel Senih
 		//	Get Column Names
 		String m_Product_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getProduct_Column_ID());
 		String m_Attribute_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getAttribute_Column_ID());
