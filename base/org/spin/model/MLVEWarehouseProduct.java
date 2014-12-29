@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.Query;
 import org.compiere.util.CCache;
 import org.compiere.util.DB;
@@ -60,6 +61,17 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	 */
 	public MLVEWarehouseProduct(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
+	}
+	
+	@Override
+	protected boolean beforeSave(boolean newRecord) {
+		super.beforeSave(newRecord);
+		//	Valid Warehouse and Locator
+		if(getWarehouse_Column_ID() <= 0
+				&& getLocator_Column_ID() <=0)
+			throw new AdempiereException("[@Warehouse_Column_ID@ / @Locator_Column_ID@] "
+					+ "@NotFound@");
+		return true;
 	}
 	
 	/***************************************************************************
@@ -174,6 +186,15 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 		//	Return
 		return wProduct;
 	}
+	
+	/**
+	 * Get From Configuration
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 29/12/2014, 16:08:54
+	 * @param ctx
+	 * @param p_AD_Table_ID
+	 * @return
+	 * @return MLVEWarehouseProduct
+	 */
 	public static MLVEWarehouseProduct getFromConfig(Properties ctx, int p_AD_Table_ID) {
 		if (p_AD_Table_ID <= 0)
 			return null;

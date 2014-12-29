@@ -127,10 +127,10 @@ public class WPModelValidator implements ModelValidator {
 		//	Valid Null
 		if(wProductConfig == null)
 			return null;
+		//	
 		String m_Parent_Column_Name = MColumn.getColumnName(po.getCtx(), wProductConfig.getParent_Column_ID());
 		// Parent PO
 		PO parentPO = getParentPO(po, m_Parent_Column_Name);
-		
 		//	Get IsSOTrx
 		String isSOTrx = po.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx);
 		//	Yamel Senih 2014-12-19, 12:47:55
@@ -187,6 +187,23 @@ public class WPModelValidator implements ModelValidator {
 		{
 			m_Qty_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Qty_Column_ID);
 		}//end if
+		//	Get Key
+		String key = po.get_KeyColumns()[0];
+		//	
+		StringBuffer sqlQty = new StringBuffer("SELECT SUM(");
+		sqlQty.append(m_Qty_Column).append(") ");
+		sqlQty.append("FROM ");
+		sqlQty.append(po.get_TableName()).append(" ");
+		sqlQty.append("WHERE ");
+		sqlQty.append(key).append(" <> ").append(po.get_ID());
+		//	Add Parent if is required
+		if(parentPO != null) {
+			sqlQty.append(" AND ");
+			sqlQty.append(m_Parent_Column_Name).append(" = ");
+			sqlQty.append(parentPO.get_ID());
+		}
+		//	Group by
+		sqlQty.append("GROUP BY ").append(m_Product_Column);
 		
 		//	Get Values
 		int m_AD_Org_ID = po.getAD_Org_ID();
