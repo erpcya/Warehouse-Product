@@ -76,8 +76,11 @@ public class WPModelValidator implements ModelValidator {
 				&& type != TYPE_BEFORE_CHANGE
 				&& type != TIMING_BEFORE_COMPLETE)
 			return null;
+		//	
+		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po);
+		boolean valid = config.validOnSave(type != TYPE_BEFORE_NEW);
 		//	Valid
-		return null;//MLVEWarehouseProduct.validWarehouseProduct(po, type);
+		return valid? config.getErrorMsgTranslate(): null;
 	}
 	
 	/**

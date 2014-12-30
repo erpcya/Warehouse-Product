@@ -282,6 +282,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 		wProductConfig = MLVEWarehouseProduct
 				.getFromTable(po.getCtx(), po.get_Table_ID(), po.getAD_Org_ID(), isSOTrx.equals("Y"));
 		//	End Yamel Senih
+		wProductConfig.loadValues(po);
 		//	Return
 		return wProductConfig;
 	}
@@ -441,41 +442,41 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	public boolean validOnSave(boolean newRecord) {
 		//	Set Error to Void
 		m_ErrorMsg = null;
-		//	If is a new record
-		if(!newRecord) {
-			MLVEWarehouseProductLine configLine = MLVEWarehouseProduct.getWarehouseProduct(getCtx(), m_PO.get_Table_ID(), 
-					m_AD_Org_ID, m_M_Product_ID, m_OldWarehouse_ID, m_PO.get_TrxName());
-			if(configLine == null)
-				return true;
-			m_M_Warehouse_ID = configLine.getM_Warehouse_ID();
-			//	Valid Mandatory
-			if(configLine.isSetWarehouse()
-					&& configLine.isAlwaysSetMandatory()) {
-				String m_Warehouse_Column = getLocator_ColumnName();
-				if(m_Warehouse_Column != null) {
-					m_PO.set_ValueOfColumn(m_Warehouse_Column, m_OldWarehouse_ID);
-					m_M_Warehouse_ID = m_OldWarehouse_ID;
-				}
-				//	Handle Locator
-				String m_Locator_Column = getLocator_ColumnName();
-				if(m_Locator_Column != null) {
-					m_PO.set_ValueOfColumn(m_Locator_Column, m_OldLocator_ID);
-					m_M_Locator_ID = m_OldLocator_ID;
-				}
+		//	Any
+		MLVEWarehouseProductLine configLine = MLVEWarehouseProduct.getWarehouseProduct(getCtx(), m_PO.get_Table_ID(), 
+				m_AD_Org_ID, m_M_Product_ID, m_OldWarehouse_ID, m_PO.get_TrxName());
+		if(configLine == null)
+			return true;
+		m_M_Warehouse_ID = configLine.getM_Warehouse_ID();
+		//	Valid Mandatory
+		if(configLine.isSetWarehouse()
+				&& configLine.isAlwaysSetMandatory()) {
+			String m_Warehouse_Column = getLocator_ColumnName();
+			if(m_Warehouse_Column != null) {
+				m_PO.set_ValueOfColumn(m_Warehouse_Column, m_OldWarehouse_ID);
+				m_M_Warehouse_ID = m_OldWarehouse_ID;
 			}
-			//	Valid Stock
-			if(configLine.isMustBeStocked()) {
-				BigDecimal available = MStorage.getQtyAvailable
-						(m_M_Warehouse_ID, m_M_Locator_ID, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
-				if (available == null)
-					available = Env.ZERO;
-				if (available.signum() == 0)
-					m_ErrorMsg = "@NoQtyAvailable@";
-				else if (available.compareTo(m_Qty) < 0)
-					m_ErrorMsg = "@InsufficientQtyAvailable@ [@QtyAvailable@ = " + available.toString() 
-								+ " @Qty@ = " + m_Qty + " @Difference@ = " + m_Qty.subtract(available) + "]";
+			//	Handle Locator
+			String m_Locator_Column = getLocator_ColumnName();
+			if(m_Locator_Column != null) {
+				m_PO.set_ValueOfColumn(m_Locator_Column, m_OldLocator_ID);
+				m_M_Locator_ID = m_OldLocator_ID;
 			}
-		} else {
+		}
+		//	Valid Stock
+		if(configLine.isMustBeStocked()) {
+			BigDecimal available = MStorage.getQtyAvailable
+					(m_M_Warehouse_ID, m_M_Locator_ID, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
+			if (available == null)
+				available = Env.ZERO;
+			if (available.signum() == 0)
+				m_ErrorMsg = "@NoQtyAvailable@";
+			else if (available.compareTo(m_Qty) < 0)
+				m_ErrorMsg = "@InsufficientQtyAvailable@ [@QtyAvailable@ = " + available.toString() 
+							+ " @Qty@ = " + m_Qty + " @Difference@ = " + m_Qty.subtract(available) + "]";
+		}
+		//	For New Record
+		if(newRecord) {
 			//	Get Combination
 			MLVEWarehouseProductLine [] combination = MLVEWarehouseProduct
 					.getWPCombination(m_PO.getCtx(), m_PO.get_Table_ID(), m_AD_Org_ID, m_M_Product_ID, m_PO.get_TrxName());
