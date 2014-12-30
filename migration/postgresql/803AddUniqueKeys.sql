@@ -1,3 +1,4 @@
 -- Product from Warehouse
-CREATE UNIQUE INDEX UK_LVE_WarehouseProductLine_Product
-ON LVE_WarehouseProductLine (LVE_WarehouseProduct_ID, AD_Org_ID, M_Warehouse_ID, M_Product_ID);
+DROP INDEX IF EXISTS UK_LVE_WarehouseProductLine_Product;
+-- Product for Locator 
+DROP INDEX IF EXISTS UK_LVE_WarehouseProductLine_Product_Locator;

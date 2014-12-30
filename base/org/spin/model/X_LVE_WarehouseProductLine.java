@@ -42,7 +42,6 @@ public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehousePro
 			setLVE_WarehouseProduct_ID (0);
 			setLVE_WarehouseProductLine_ID (0);
 			setM_Product_ID (0);
-			setM_Warehouse_ID (0);
         } */
     }
 
@@ -173,6 +172,34 @@ public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehousePro
 	public int getLVE_WarehouseProductLine_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_LVE_WarehouseProductLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_Locator getM_Locator() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_Locator)MTable.get(getCtx(), org.compiere.model.I_M_Locator.Table_Name)
+			.getPO(getM_Locator_ID(), get_TrxName());	}
+
+	/** Set Locator.
+		@param M_Locator_ID 
+		Warehouse Locator
+	  */
+	public void setM_Locator_ID (int M_Locator_ID)
+	{
+		if (M_Locator_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_Locator_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_M_Locator_ID, Integer.valueOf(M_Locator_ID));
+	}
+
+	/** Get Locator.
+		@return Warehouse Locator
+	  */
+	public int getM_Locator_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Locator_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

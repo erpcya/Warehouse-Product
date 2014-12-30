@@ -10,3 +10,6 @@ CREATE TABLE LVE_WarehouseProductLine (AD_Client_ID NUMERIC(10) NOT NULL, AD_Org
 
 -- Alter Table
 ALTER TABLE LVE_WarehouseProduct ALTER COLUMN Warehouse_Column_ID DROP NOT NULL;
+
+-- Alter Table
+ALTER TABLE LVE_WarehouseProductLine ALTER COLUMN Warehouse_Column_ID DROP NOT NULL;
