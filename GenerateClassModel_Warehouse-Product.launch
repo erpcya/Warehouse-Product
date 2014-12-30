@@ -130,7 +130,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.adempiere.util.GenerateModel"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;/opt/Development/workspace/Warehouse-Product/base/org/spin/model/&quot;&#13;&#10;&quot;org.spin.model&quot;&#13;&#10;&quot;'ECA02'&quot;&#10;&quot;'LVE_%'&quot;"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="&quot;/opt/Development/git/Warehouse-Product/base/org/spin/model/&quot;&#13;&#10;&quot;org.spin.model&quot;&#13;&#10;&quot;'ECA02'&quot;&#10;&quot;'LVE_%'&quot;"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Warehouse-Product"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DPropertyFile=/opt/Development/ADempiere_Properties/WarehouseProduct.properties&#13;&#10;-DADEMPIERE_HOME=/Applications/Adempiere&#13;&#10;-Xms128M&#13;&#10;-Xmx256M&#13;&#10;-Dorg.adempiere.server.embedded=true"/>
 </launchConfiguration>

@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for LVE_WarehouseProduct
  *  @author Adempiere (generated) 
- *  @version Release 3.7.0LTS
+ *  @version Release 3.7.0LTS (1252452765)
  */
 public interface I_LVE_WarehouseProduct 
 {
@@ -130,6 +130,15 @@ public interface I_LVE_WarehouseProduct
 	  * This is a Sales Transaction
 	  */
 	public boolean isSOTrx();
+
+    /** Column name IsValidToComplete */
+    public static final String COLUMNNAME_IsValidToComplete = "IsValidToComplete";
+
+	/** Set Valid to Complete	  */
+	public void setIsValidToComplete (boolean IsValidToComplete);
+
+	/** Get Valid to Complete	  */
+	public boolean isValidToComplete();
 
     /** Column name Locator_Column_ID */
     public static final String COLUMNNAME_Locator_Column_ID = "Locator_Column_ID";

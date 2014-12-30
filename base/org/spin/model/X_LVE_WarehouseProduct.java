@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for LVE_WarehouseProduct
  *  @author Adempiere (generated) 
- *  @version Release 3.7.0LTS - $Id$ */
+ *  @version Release 3.7.0LTS (1252452765) - $Id$ */
 public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20141120L;
+	private static final long serialVersionUID = 20141230L;
 
     /** Standard Constructor */
     public X_LVE_WarehouseProduct (Properties ctx, int LVE_WarehouseProduct_ID, String trxName)
@@ -44,7 +44,6 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 			setName (null);
 			setProduct_Column_ID (0);
 			setQty_Column_ID (0);
-			setWarehouse_Column_ID (0);
         } */
     }
 
@@ -153,6 +152,27 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 		return false;
 	}
 
+	/** Set Valid to Complete.
+		@param IsValidToComplete Valid to Complete	  */
+	public void setIsValidToComplete (boolean IsValidToComplete)
+	{
+		set_Value (COLUMNNAME_IsValidToComplete, Boolean.valueOf(IsValidToComplete));
+	}
+
+	/** Get Valid to Complete.
+		@return Valid to Complete	  */
+	public boolean isValidToComplete () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsValidToComplete);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	public org.compiere.model.I_AD_Column getLocator_Column() throws RuntimeException
     {
 		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
@@ -163,9 +183,9 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 	public void setLocator_Column_ID (int Locator_Column_ID)
 	{
 		if (Locator_Column_ID < 1) 
-			set_Value (COLUMNNAME_Locator_Column_ID, null);
+			set_ValueNoCheck (COLUMNNAME_Locator_Column_ID, null);
 		else 
-			set_Value (COLUMNNAME_Locator_Column_ID, Integer.valueOf(Locator_Column_ID));
+			set_ValueNoCheck (COLUMNNAME_Locator_Column_ID, Integer.valueOf(Locator_Column_ID));
 	}
 
 	/** Get Locator Column.
@@ -235,9 +255,9 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 	public void setParent_Column_ID (int Parent_Column_ID)
 	{
 		if (Parent_Column_ID < 1) 
-			set_Value (COLUMNNAME_Parent_Column_ID, null);
+			set_ValueNoCheck (COLUMNNAME_Parent_Column_ID, null);
 		else 
-			set_Value (COLUMNNAME_Parent_Column_ID, Integer.valueOf(Parent_Column_ID));
+			set_ValueNoCheck (COLUMNNAME_Parent_Column_ID, Integer.valueOf(Parent_Column_ID));
 	}
 
 	/** Get Parent Column.

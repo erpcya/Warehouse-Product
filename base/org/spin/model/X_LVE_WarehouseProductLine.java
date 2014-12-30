@@ -24,14 +24,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for LVE_WarehouseProductLine
  *  @author Adempiere (generated) 
- *  @version Release 3.7.0LTS - $Id$ */
+ *  @version Release 3.7.0LTS (1252452765) - $Id$ */
 public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehouseProductLine, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20141120L;
+	private static final long serialVersionUID = 20141230L;
 
     /** Standard Constructor */
     public X_LVE_WarehouseProductLine (Properties ctx, int LVE_WarehouseProductLine_ID, String trxName)
@@ -103,6 +103,27 @@ public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehousePro
 	public boolean isAlwaysSetMandatory () 
 	{
 		Object oo = get_Value(COLUMNNAME_IsAlwaysSetMandatory);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Is Set Warehouse.
+		@param IsSetWarehouse Is Set Warehouse	  */
+	public void setIsSetWarehouse (boolean IsSetWarehouse)
+	{
+		set_Value (COLUMNNAME_IsSetWarehouse, Boolean.valueOf(IsSetWarehouse));
+	}
+
+	/** Get Is Set Warehouse.
+		@return Is Set Warehouse	  */
+	public boolean isSetWarehouse () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsSetWarehouse);
 		if (oo != null) 
 		{
 			 if (oo instanceof Boolean) 

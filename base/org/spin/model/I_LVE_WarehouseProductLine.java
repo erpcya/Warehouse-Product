@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for LVE_WarehouseProductLine
  *  @author Adempiere (generated) 
- *  @version Release 3.7.0LTS
+ *  @version Release 3.7.0LTS (1252452765)
  */
 public interface I_LVE_WarehouseProductLine 
 {
@@ -113,6 +113,15 @@ public interface I_LVE_WarehouseProductLine
 
 	/** Get Is Always Set Mandatory	  */
 	public boolean isAlwaysSetMandatory();
+
+    /** Column name IsSetWarehouse */
+    public static final String COLUMNNAME_IsSetWarehouse = "IsSetWarehouse";
+
+	/** Set Is Set Warehouse	  */
+	public void setIsSetWarehouse (boolean IsSetWarehouse);
+
+	/** Get Is Set Warehouse	  */
+	public boolean isSetWarehouse();
 
     /** Column name LVE_WarehouseProduct_ID */
     public static final String COLUMNNAME_LVE_WarehouseProduct_ID = "LVE_WarehouseProduct_ID";
