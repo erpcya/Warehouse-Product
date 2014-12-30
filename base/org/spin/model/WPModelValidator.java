@@ -77,7 +77,7 @@ public class WPModelValidator implements ModelValidator {
 				&& type != TIMING_BEFORE_COMPLETE)
 			return null;
 		//	Valid
-		return MLVEWarehouseProduct.validWarehouseProduct(po, type);
+		return null;//MLVEWarehouseProduct.validWarehouseProduct(po, type);
 	}
 	
 	/**

@@ -46,9 +46,6 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	 */
 	private static final long serialVersionUID = 1994668061472867078L;
 	
-	/** Cache */
-	public static CCache<Integer, MLVEWarehouseProduct> s_cacheByTable = new CCache<Integer, MLVEWarehouseProduct>(Table_Name, 10);
-
 	/**
 	 * *** Constructor ***
 	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 25/07/2014, 17:26:18
@@ -71,6 +68,32 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	public MLVEWarehouseProduct(Properties ctx, ResultSet rs, String trxName) {
 		super(ctx, rs, trxName);
 	}
+	
+	/** Cache */
+	public static CCache<Integer, MLVEWarehouseProduct> s_cacheByTable = new CCache<Integer, MLVEWarehouseProduct>(Table_Name, 10);
+
+	/**	PO							*/
+	private PO 			m_PO 							= null;
+	/**	Parent PO					*/
+	private PO			m_ParentPO 						= null;
+	/**	Organization				*/
+	private int 		m_AD_Org_ID						= 0;
+	/**	Product						*/
+	private int 		m_M_Product_ID					= 0;
+	/**	Attribute Set Instance		*/
+	private int 		m_M_AttributeSetInstance_ID 	= 0;
+	/**	Warehouse					*/
+	private int 		m_M_Warehouse_ID 				= 0;
+	/**	Warehouse Old				*/
+	private int 		m_OldWarehouse_ID				= 0;
+	/**	Locator						*/
+	private int 		m_M_Locator_ID 					= 0;
+	/**	Locator Old					*/
+	private int 		m_OldLocator_ID 				= 0;
+	/**	Quantity					*/
+	private BigDecimal 	m_Qty							= Env.ZERO;
+	/**	Error Message				*/
+	private String		m_ErrorMsg						= null;
 	
 	@Override
 	protected boolean beforeSave(boolean newRecord) {
@@ -199,20 +222,6 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	}
 	
 	/**
-	 * Get From Table, default true in IsSOTrx
-	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 29/12/2014, 16:08:54
-	 * @param ctx
-	 * @param p_AD_Table_ID
-	 * @param p_AD_Org_ID
-	 * @return
-	 * @return MLVEWarehouseProduct
-	 */
-	public static MLVEWarehouseProduct getFromTable(Properties ctx, int p_AD_Table_ID, int p_AD_Org_ID) {
-		return getFromTable(ctx, p_AD_Table_ID, p_AD_Org_ID, true);
-	}
-	
-	
-	/**
 	 * Valid Warehouse Product Configuration
 	 * @author <a href="mailto:waditzar.c@gmail.com">Waditza Rivas</a> 26/07/2014, 13:17:14
 	 * @contributor <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 20/11/2014, 11:23:10
@@ -236,28 +245,26 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	}
 	
 	/**
-	 * Valid Warehouse by Product
-	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 22/08/2014, 22:19:04
-	 * @contributor <a href="mailto:waditzar.c@gmail.com">Waditza Rivas</a> 22/08/2014, 22:19:05
+	 * Get Configuration from PO
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 14:37:29
 	 * @param po
-	 * @param type
 	 * @return
-	 * @return String
+	 * @return MLVEWarehouseProduct
 	 */
-	public static String validWarehouseProduct(PO po, int type) {
+	public static MLVEWarehouseProduct getFromPO(PO po) {
 		//	
-		String msg = null;
-		//	do It
-        
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
-				.getFromTable(po.getCtx(), po.get_Table_ID(), po.getAD_Org_ID());
+				.getFromTable(po.getCtx(), po.get_Table_ID(), po.getAD_Org_ID(), true);
+		//	Valid Null
+		if(wProductConfig == null) {
+			wProductConfig = MLVEWarehouseProduct
+					.getFromTable(po.getCtx(), po.get_Table_ID(), po.getAD_Org_ID(), false);
+		}
 		//	Valid Null
 		if(wProductConfig == null)
 			return null;
-		//	
-		String m_Parent_Column_Name = MColumn.getColumnName(po.getCtx(), wProductConfig.getParent_Column_ID());
 		// Parent PO
-		PO parentPO = getParentPO(po, m_Parent_Column_Name);
+		PO parentPO = getParentPO(po, wProductConfig.getParent_ColumnName());
 		//	Get IsSOTrx
 		String isSOTrx = po.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_IsSOTrx);
 		//	Yamel Senih 2014-12-19, 12:47:55
@@ -272,105 +279,187 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 		if(isSOTrx == null)
 			isSOTrx = "N";
 		//	Get Warehouse Product
-		MLVEWarehouseProduct wProductConfigIsSOTrx = MLVEWarehouseProduct
+		wProductConfig = MLVEWarehouseProduct
 				.getFromTable(po.getCtx(), po.get_Table_ID(), po.getAD_Org_ID(), isSOTrx.equals("Y"));
 		//	End Yamel Senih
-		//	Get Column Names
-		String m_Product_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getProduct_Column_ID());
-		String m_Attribute_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getAttribute_Column_ID());
-		String m_Warehouse_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getWarehouse_Column_ID());
-		String m_Locator_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getLocator_Column_ID());
-		String m_Qty_Column = MColumn.getColumnName(po.getCtx(), wProductConfigIsSOTrx.getQty_Column_ID());
-		//if Null m_Product_Column
-		if(m_Product_Column == null 
-				&& parentPO != null)
-		{
-			m_Product_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Product_Column_ID);
-		}//end if
-		
-		//if Null m_Attribute_Column
-		if(m_Attribute_Column == null 
-				&& parentPO != null)
-		{
-			m_Attribute_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Attribute_Column_ID);
-		}//end if
-		
-		//if Null m_Warehouse_Column
-		if(m_Warehouse_Column == null 
-				&& parentPO != null)
-		{
-			m_Warehouse_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Warehouse_Column_ID);
-		}//end if
-		//if Null m_Locator_Column
-		if(m_Locator_Column == null 
-				&& parentPO != null)
-		{
-			m_Locator_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Locator_Column_ID);
-		}//end if
-		
-		//if Null m_Qty_Column
-		if(m_Qty_Column == null 
-				&& parentPO != null)
-		{
-			m_Qty_Column = parentPO.get_ValueAsString(I_LVE_WarehouseProduct.COLUMNNAME_Qty_Column_ID);
-		}//end if
-		//	Get Key
-		String key = po.get_KeyColumns()[0];
-		//	
-		StringBuffer sqlQty = null;
-		//		
-		if(parentPO != null) {
-			sqlQty = new StringBuffer("SELECT SUM(");
-			sqlQty.append(m_Qty_Column).append(") ");
-			sqlQty.append("FROM ");
-			sqlQty.append(po.get_TableName()).append(" ");
-			sqlQty.append("WHERE ");
-			sqlQty.append(key).append(" <> ").append(po.get_ID());
-			//	Add Parent if is required
-			sqlQty.append(" AND ");
-			//sqlQty.append(m_Product_Column).append(" = ").append()
-			sqlQty.append(m_Parent_Column_Name).append(" = ");
-			sqlQty.append(parentPO.get_ID());
-			//	Group by
-			sqlQty.append(" GROUP BY ").append(m_Product_Column);
-		}
-		//	Get Values
-		int m_AD_Org_ID = po.getAD_Org_ID();
-		int m_M_Product_ID = po.get_ValueAsInt(m_Product_Column);
+		//	Return
+		return wProductConfig;
+	}
+	
+	/**
+	 * Get Parent Column Name
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 14:58:41
+	 * @return
+	 * @return String
+	 */
+	public String getParent_ColumnName() {
+		return getColumnName(getParent_Column_ID());
+	}
+	
+	/**
+	 * Get Product Column Name
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 15:01:27
+	 * @return
+	 * @return String
+	 */
+	public String getProduct_ColumnName() {
+		return getColumnName(getProduct_Column_ID());
+	}
+	
+	/**
+	 * Get Attribute Column Name
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 15:01:38
+	 * @return
+	 * @return String
+	 */
+	public String getAttribute_ColumnName() {
+		return getColumnName(getAttribute_Column_ID());
+	}
+	
+	/**
+	 * Get Warehouse Column Name
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 15:01:55
+	 * @return
+	 * @return String
+	 */
+	public String getWarehouse_ColumnName() {
+		return getColumnName(getWarehouse_Column_ID());
+	}
+	
+	/**
+	 * Get Locator Column Name
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 15:02:06
+	 * @return
+	 * @return String
+	 */
+	public String getLocator_ColumnName() {
+		return getColumnName(getLocator_Column_ID());
+	}
+	
+	/**
+	 * Get Quantity Column Name
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 15:02:15
+	 * @return
+	 * @return String
+	 */
+	public String getQty_ColumnName() {
+		return getColumnName(getQty_Column_ID());
+	}
+	
+	/**
+	 * Get Column Name
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 14:58:07
+	 * @param p_AD_Column_ID
+	 * @return
+	 * @return String
+	 */
+	private String getColumnName(int p_AD_Column_ID) {
+		return MColumn.getColumnName(getCtx(), p_AD_Column_ID);
+	}
+	
+	/**
+	 * Load Values for PO
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 15:21:15
+	 * @param p_PO
+	 * @return void
+	 */
+	public void loadValues(PO p_PO) {
+		//	Get PO and Parent PO
+		m_PO = p_PO;
+		m_ParentPO = getParentPO(m_PO, getParent_ColumnName());
+		//	Organization
+		m_AD_Org_ID = m_PO.getAD_Org_ID();
+		//	Product
+		m_M_Product_ID = m_PO.get_ValueAsInt(getProduct_ColumnName());
 		//	Handle Attribute
-		int m_M_AttributeSetInstance_ID = 0;
+		m_M_AttributeSetInstance_ID = 0;
 		//	Valid Attribute
+		String m_Attribute_Column = getAttribute_ColumnName();
 		if(m_Attribute_Column != null)
-			m_M_AttributeSetInstance_ID = po.get_ValueAsInt(m_Attribute_Column);
+			m_M_AttributeSetInstance_ID = m_PO.get_ValueAsInt(m_Attribute_Column);
 		//	Handle Warehouse
-		int m_M_Warehouse_ID = po.get_ValueAsInt(m_Warehouse_Column);
-		int m_OldWarehouse_ID = po.get_ValueOldAsInt(m_Warehouse_Column);
+		String m_Warehouse_Column = getWarehouse_ColumnName();
+		m_M_Warehouse_ID = 0;
+		m_OldWarehouse_ID = 0;
+		if(m_Warehouse_Column != null) {
+			m_M_Warehouse_ID = m_PO.get_ValueAsInt(m_Warehouse_Column);
+			m_OldWarehouse_ID = m_PO.get_ValueOldAsInt(m_Warehouse_Column);
+		}
 		//	Handle Locator
-		int m_M_Locator_ID = 0;
-		int m_OldLocator_ID = 0;
+		String m_Locator_Column = getLocator_ColumnName();
+		m_M_Locator_ID = 0;
+		m_OldLocator_ID = 0;
 		//	Valid Locator
 		if(m_Locator_Column != null) {
-			m_M_Locator_ID = po.get_ValueAsInt(m_Locator_Column);
-			m_OldLocator_ID = po.get_ValueOldAsInt(m_Locator_Column);
+			m_M_Locator_ID = m_PO.get_ValueAsInt(m_Locator_Column);
+			m_OldLocator_ID = m_PO.get_ValueOldAsInt(m_Locator_Column);
 		}
-		//	
-		BigDecimal m_Qty = (BigDecimal) po.get_Value(m_Qty_Column);
+		//	Quantity
+		m_Qty = (BigDecimal) m_PO.get_Value(getQty_ColumnName());
+		//	Get From Parent
+		if(m_ParentPO != null) {
+			//	Organization
+			if(m_AD_Org_ID == 0)
+				m_AD_Org_ID = m_ParentPO.getAD_Org_ID();
+			//	Product
+			if(m_M_Product_ID == 0)
+				m_M_Product_ID = m_ParentPO.get_ValueAsInt(getProduct_ColumnName());
+			//	Attribute
+			if(m_Attribute_Column != null
+					&& m_M_AttributeSetInstance_ID == 0)
+				m_M_AttributeSetInstance_ID = m_ParentPO.get_ValueAsInt(m_Attribute_Column);
+			//	Warehouse
+			if(m_Warehouse_Column == null) {
+				if(m_M_Warehouse_ID == 0)
+					m_M_Warehouse_ID = m_ParentPO.get_ValueAsInt(m_Warehouse_Column);
+				if(m_OldWarehouse_ID == 0)
+					m_OldWarehouse_ID = m_ParentPO.get_ValueOldAsInt(m_Warehouse_Column);
+			}
+			//	Locator
+			if(m_Locator_Column == null) {
+				if(m_M_Locator_ID == 0)
+					m_M_Locator_ID = m_ParentPO.get_ValueAsInt(m_Locator_Column);
+				if(m_OldLocator_ID == 0)
+					m_OldLocator_ID = m_ParentPO.get_ValueOldAsInt(m_Locator_Column);
+			}
+			//	Quantity
+			if(m_Qty == null)
+				m_ParentPO.get_Value(getQty_ColumnName());
+		}
+		//	Set Quantity
 		if(m_Qty == null)
 			m_Qty = Env.ZERO;
-		//	Valid Configuration
-		if(type == TYPE_BEFORE_CHANGE) {
-			MLVEWarehouseProductLine configLine = MLVEWarehouseProduct.getWarehouseProduct(po.getCtx(), po.get_Table_ID(), 
-					m_AD_Org_ID, m_M_Product_ID, m_OldWarehouse_ID, po.get_TrxName());
+	}
+
+	/**
+	 * Valid On Save Event
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 15:49:33
+	 * @param newRecord
+	 * @return
+	 * @return boolean
+	 */
+	public boolean validOnSave(boolean newRecord) {
+		//	Set Error to Void
+		m_ErrorMsg = null;
+		//	If is a new record
+		if(!newRecord) {
+			MLVEWarehouseProductLine configLine = MLVEWarehouseProduct.getWarehouseProduct(getCtx(), m_PO.get_Table_ID(), 
+					m_AD_Org_ID, m_M_Product_ID, m_OldWarehouse_ID, m_PO.get_TrxName());
 			if(configLine == null)
-				return null;
+				return true;
 			m_M_Warehouse_ID = configLine.getM_Warehouse_ID();
 			//	Valid Mandatory
-			if(configLine.isAlwaysSetMandatory()) {
-				po.set_ValueOfColumn(m_Warehouse_Column, m_OldWarehouse_ID);
-				m_M_Warehouse_ID = m_OldWarehouse_ID;
+			if(configLine.isSetWarehouse()
+					&& configLine.isAlwaysSetMandatory()) {
+				String m_Warehouse_Column = getLocator_ColumnName();
+				if(m_Warehouse_Column != null) {
+					m_PO.set_ValueOfColumn(m_Warehouse_Column, m_OldWarehouse_ID);
+					m_M_Warehouse_ID = m_OldWarehouse_ID;
+				}
 				//	Handle Locator
+				String m_Locator_Column = getLocator_ColumnName();
 				if(m_Locator_Column != null) {
-					po.set_ValueOfColumn(m_Locator_Column, m_OldLocator_ID);
+					m_PO.set_ValueOfColumn(m_Locator_Column, m_OldLocator_ID);
 					m_M_Locator_ID = m_OldLocator_ID;
 				}
 			}
@@ -381,18 +470,18 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 				if (available == null)
 					available = Env.ZERO;
 				if (available.signum() == 0)
-					msg = "@NoQtyAvailable@";
+					m_ErrorMsg = "@NoQtyAvailable@";
 				else if (available.compareTo(m_Qty) < 0)
-					msg = "@InsufficientQtyAvailable@ [@QtyAvailable@ = " + available.toString() 
+					m_ErrorMsg = "@InsufficientQtyAvailable@ [@QtyAvailable@ = " + available.toString() 
 								+ " @Qty@ = " + m_Qty + " @Difference@ = " + m_Qty.subtract(available) + "]";
 			}
-		} else if(type == TYPE_BEFORE_NEW) {
+		} else {
 			//	Get Combination
 			MLVEWarehouseProductLine [] combination = MLVEWarehouseProduct
-					.getWPCombination(po.getCtx(), po.get_Table_ID(), m_AD_Org_ID, m_M_Product_ID, po.get_TrxName());
+					.getWPCombination(m_PO.getCtx(), m_PO.get_Table_ID(), m_AD_Org_ID, m_M_Product_ID, m_PO.get_TrxName());
 			//	Valid Combination
 			if(combination == null)
-				return null;
+				return true;
 			//	
 			BigDecimal available = Env.ZERO;
 			//	Is Stocked
@@ -419,27 +508,135 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 			//	
 			if (available.compareTo(m_Qty) < 0
 					&& isMustBeStocked) {
-				MWarehouse warehouse = MWarehouse.get(po.getCtx(), m_M_Warehouse_ID);
+				MWarehouse warehouse = MWarehouse.get(m_PO.getCtx(), m_M_Warehouse_ID);
 				//	Msg
-				msg = "@InsufficientQtyAvailable@ [@M_Warehouse_ID@ = " + warehouse.getName() 
+				m_ErrorMsg = "@InsufficientQtyAvailable@ [@M_Warehouse_ID@ = " + warehouse.getName() 
 						+ ", @QtyAvailable@ = " + available.toString() 
 						+ " @Qty@ = " + m_Qty + " @Difference@ = " + m_Qty.subtract(available) + "]";
 			}
 			//	Set Warehouse
-			po.set_ValueOfColumn(m_Warehouse_Column, m_M_Warehouse_ID);
+			String m_Warehouse_Column = getLocator_ColumnName();
+			if(m_Warehouse_Column != null) {
+				m_PO.set_ValueOfColumn(m_Warehouse_Column, m_M_Warehouse_ID);
+			}
 			//	Set Locator
+			String m_Locator_Column = getLocator_ColumnName();
 			if(m_Locator_Column != null) {
-				po.set_ValueOfColumn(m_Locator_Column, m_M_Locator_ID);
+				m_PO.set_ValueOfColumn(m_Locator_Column, m_M_Locator_ID);
 			}
 			//	Valid Stock
 		}
-		//	Return
-		return Msg.parseTranslation(po.getCtx(), msg);
+		//	
+		return (m_ErrorMsg != null);
+	}
+	
+	//	String key = po.get_KeyColumns()[0];
+	//	//	
+	//	StringBuffer sqlQty = null;
+	//	//		
+	//	if(parentPO != null) {
+	//		sqlQty = new StringBuffer("SELECT SUM(");
+	//		sqlQty.append(m_Qty_Column).append(") ");
+	//		sqlQty.append("FROM ");
+	//		sqlQty.append(po.get_TableName()).append(" ");
+	//		sqlQty.append("WHERE ");
+	//		sqlQty.append(key).append(" <> ").append(po.get_ID());
+	//		//	Add Parent if is required
+	//		sqlQty.append(" AND ");
+	//		//sqlQty.append(m_Product_Column).append(" = ").append()
+	//		sqlQty.append(m_Parent_Column_Name).append(" = ");
+	//		sqlQty.append(parentPO.get_ID());
+	//		//	Group by
+	//		sqlQty.append(" GROUP BY ").append(m_Product_Column);
+	//	}
+	
+	/**
+	 * @return the m_PO
+	 */
+	public PO getPO() {
+		return m_PO;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * @return the m_ParentPO
 	 */
+	public PO getParentPO() {
+		return m_ParentPO;
+	}
+
+	/**
+	 * @return the m_AD_Org_ID
+	 */
+	public int getAD_Org_ID() {
+		return m_AD_Org_ID;
+	}
+
+	/**
+	 * @return the m_M_Product_ID
+	 */
+	public int getM_Product_ID() {
+		return m_M_Product_ID;
+	}
+
+	/**
+	 * @return the m_M_AttributeSetInstance_ID
+	 */
+	public int getM_AttributeSetInstance_ID() {
+		return m_M_AttributeSetInstance_ID;
+	}
+
+	/**
+	 * @return the m_M_Warehouse_ID
+	 */
+	public int getM_Warehouse_ID() {
+		return m_M_Warehouse_ID;
+	}
+
+	/**
+	 * @return the m_OldWarehouse_ID
+	 */
+	public int getOldWarehouse_ID() {
+		return m_OldWarehouse_ID;
+	}
+
+	/**
+	 * @return the m_M_Locator_ID
+	 */
+	public int getM_Locator_ID() {
+		return m_M_Locator_ID;
+	}
+
+	/**
+	 * @return the m_OldLocator_ID
+	 */
+	public int getOldLocator_ID() {
+		return m_OldLocator_ID;
+	}
+
+	/**
+	 * @return the m_Qty
+	 */
+	public BigDecimal getQty() {
+		return m_Qty;
+	}
+	
+	/**
+	 * @return the m_ErrorMsg
+	 */
+	public String getErrorMsg() {
+		return m_ErrorMsg;
+	}
+	
+	/**
+	 * Get error with translation
+	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 15:55:18
+	 * @return
+	 * @return String
+	 */
+	public String getErrorMsgTranslate() {
+		return Msg.parseTranslation(getCtx(), m_ErrorMsg);
+	}
+
 	@Override
 	public String toString() {
 		return "MLVEWarehouseProduct [getAD_Table_ID()=" + getAD_Table_ID()
