@@ -73,8 +73,7 @@ public class WPModelValidator implements ModelValidator {
 			return null;
 		//	
 		if(type != TYPE_BEFORE_NEW
-				&& type != TYPE_BEFORE_CHANGE
-				&& type != TIMING_BEFORE_COMPLETE)
+				&& type != TYPE_BEFORE_CHANGE)
 			return null;
 		//	
 		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po);
@@ -84,9 +83,6 @@ public class WPModelValidator implements ModelValidator {
 				&& !config.isValidToComplete()) {
 			//	Valid
 			config.validOnSave(type == TYPE_BEFORE_NEW);
-		} else if(type == TIMING_BEFORE_COMPLETE
-				&& config.isValidToComplete()) {
-			//	
 		}
 		//	Return
 		return config.getErrorMsgTranslate();
@@ -104,12 +100,16 @@ public class WPModelValidator implements ModelValidator {
 		if(engine == null
 				|| listener == null)
 			return;
-		KeyNamePair [] tables = DB.getKeyNamePairs("SELECT t.AD_Table_ID, t.TableName " +
+		KeyNamePair [] tables = DB.getKeyNamePairs("SELECT CASE " + 
+				"WHEN wp.IsValidToComplete = 'Y' THEN 1 ELSE -1 END " +
+				", CASE WHEN wp.IsValidToComplete = 'Y' " + 
+				"THEN replace(c.ColumnName, '_ID', '') ELSE t.TableName END TableName " + 
 				"FROM LVE_WarehouseProduct wp " +
 				"INNER JOIN AD_Table t ON(t.AD_Table_ID = wp.AD_Table_ID) " +
+				"LEFT JOIN AD_Column c ON(c.AD_Column_ID = wp.Parent_Column_ID) " + 
 				"WHERE wp.AD_Client_ID = ? " +
 				"AND wp.IsActive = 'Y' " +
-				"GROUP BY t.AD_Table_ID, t.TableName " +
+				"GROUP BY wp.IsValidToComplete, t.TableName, c.ColumnName " +
 				"ORDER BY t.TableName", false, getAD_Client_ID());
 		//	Valid Tables
 		if(tables == null)
@@ -117,13 +117,35 @@ public class WPModelValidator implements ModelValidator {
 		//	Iterate over tables
 		for (KeyNamePair table : tables) {
 			//	Add Listener
-			engine.addModelChange(table.getName(), listener);
+			if(table.getKey() == -1)
+				engine.addModelChange(table.getName(), listener);
+			else if(table.getKey() == 1
+					&& table.getName() != null)
+				engine.addDocValidate(table.getName(), listener);
 			log.fine("Table Added=" + table.toString());
 		}
 	}
 
 	@Override
 	public String docValidate(PO po, int timing) {
-		return null;
+		//	Valid Null
+		if(po == null)
+			return null;
+		//	
+		if(timing != TIMING_BEFORE_COMPLETE)
+			return null;
+		//	
+		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po);
+		//	Valid Null
+		if(config == null)
+			return null;
+		//	
+		if(timing == TIMING_BEFORE_COMPLETE
+				&& config.isValidToComplete()) {
+			//	Valid
+			config.validOnComplete();
+		}
+		//	Return
+		return config.getErrorMsgTranslate();
 	}
 }
