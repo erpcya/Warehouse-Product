@@ -249,10 +249,11 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 	 * Get Configuration from PO
 	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 30/12/2014, 14:37:29
 	 * @param po
+	 * @param fromParent
 	 * @return
 	 * @return MLVEWarehouseProduct
 	 */
-	public static MLVEWarehouseProduct getFromPO(PO po) {
+	public static MLVEWarehouseProduct getFromPO(PO po, boolean fromParent) {
 		//	
 		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
 				.getFromTable(po.getCtx(), po.get_Table_ID(), po.getAD_Org_ID(), true);
