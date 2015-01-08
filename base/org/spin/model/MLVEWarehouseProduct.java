@@ -443,6 +443,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 		//	Set Error to Void
 		m_ErrorMsg = null;
 		if(!newRecord) {
+			
 			MLVEWarehouseProductLine configLine = MLVEWarehouseProduct.getWarehouseProduct(getCtx(), m_PO.get_Table_ID(), 
 					m_AD_Org_ID, m_M_Product_ID, m_OldWarehouse_ID, m_PO.get_TrxName());
 			if(configLine == null)
@@ -532,6 +533,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 			String m_Warehouse_Column = getWarehouse_ColumnName();
 			if(m_Warehouse_Column != null) {
 				m_PO.set_ValueOfColumn(m_Warehouse_Column, m_M_Warehouse_ID);
+				System.out.println(m_Warehouse_Column);
 			}
 			//	Set Locator
 			String m_Locator_Column = getLocator_ColumnName();
@@ -589,6 +591,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 		if (available.compareTo(m_Qty.add(qtyOnLines)) < 0
 				&& isMustBeStocked) {
 			MWarehouse warehouse = MWarehouse.get(getCtx(), m_M_Warehouse_ID);
+			
 			//	Msg
 			m_ErrorMsg = "@InsufficientQtyAvailable@ [@M_Warehouse_ID@ = " + warehouse.getName() 
 					+ " @QtyAvailable@ = " + available.doubleValue() 
