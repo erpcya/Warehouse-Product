@@ -77,6 +77,10 @@ public class WPModelValidator implements ModelValidator {
 			return null;
 		//	
 		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po);
+		//	Dixon Martinez 2015-01-08
+		if(config == null) 
+			return null;
+		//	End Dixon Martinez
 		//	
 		if(type == TYPE_BEFORE_NEW
 				|| type == TYPE_BEFORE_CHANGE
