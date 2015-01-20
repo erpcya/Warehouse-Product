@@ -178,6 +178,7 @@ public class MLVEWarehouseProduct extends X_LVE_WarehouseProduct {
 				.setOnlyActiveRecords(true)
 				.setOrderBy(I_LVE_WarehouseProductLine.COLUMNNAME_SeqNo)
 				.<MLVEWarehouseProductLine>list();
+		
 		//	Convert to Array
 		MLVEWarehouseProductLine [] combinations = new MLVEWarehouseProductLine[list.size()];
 		list.toArray(combinations);
