@@ -76,7 +76,7 @@ public class WPModelValidator implements ModelValidator {
 				&& type != TYPE_BEFORE_CHANGE)
 			return null;
 		//	
-		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po);
+		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po, false);
 		//	Dixon Martinez 2015-01-08
 		if(config == null) 
 			return null;
@@ -139,7 +139,7 @@ public class WPModelValidator implements ModelValidator {
 		if(timing != TIMING_BEFORE_COMPLETE)
 			return null;
 		//	
-		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po);
+		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po, false);
 		//	Valid Null
 		if(config == null)
 			return null;
