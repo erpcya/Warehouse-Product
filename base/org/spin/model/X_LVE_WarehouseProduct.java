@@ -31,7 +31,7 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20140727L;
+	private static final long serialVersionUID = 20141230L;
 
     /** Standard Constructor */
     public X_LVE_WarehouseProduct (Properties ctx, int LVE_WarehouseProduct_ID, String trxName)
@@ -40,12 +40,10 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
       /** if (LVE_WarehouseProduct_ID == 0)
         {
 			setAD_Table_ID (0);
-			setAttribute_Column_ID (0);
 			setLVE_WarehouseProduct_ID (0);
 			setName (null);
 			setProduct_Column_ID (0);
 			setQty_Column_ID (0);
-			setWarehouse_Column_ID (0);
         } */
     }
 
@@ -89,9 +87,9 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 	public void setAD_Table_ID (int AD_Table_ID)
 	{
 		if (AD_Table_ID < 1) 
-			set_Value (COLUMNNAME_AD_Table_ID, null);
+			set_ValueNoCheck (COLUMNNAME_AD_Table_ID, null);
 		else 
-			set_Value (COLUMNNAME_AD_Table_ID, Integer.valueOf(AD_Table_ID));
+			set_ValueNoCheck (COLUMNNAME_AD_Table_ID, Integer.valueOf(AD_Table_ID));
 	}
 
 	/** Get Table.
@@ -125,6 +123,76 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
 	public int getAttribute_Column_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_Attribute_Column_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Sales Transaction.
+		@param IsSOTrx 
+		This is a Sales Transaction
+	  */
+	public void setIsSOTrx (boolean IsSOTrx)
+	{
+		set_ValueNoCheck (COLUMNNAME_IsSOTrx, Boolean.valueOf(IsSOTrx));
+	}
+
+	/** Get Sales Transaction.
+		@return This is a Sales Transaction
+	  */
+	public boolean isSOTrx () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsSOTrx);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Valid to Complete.
+		@param IsValidToComplete Valid to Complete	  */
+	public void setIsValidToComplete (boolean IsValidToComplete)
+	{
+		set_Value (COLUMNNAME_IsValidToComplete, Boolean.valueOf(IsValidToComplete));
+	}
+
+	/** Get Valid to Complete.
+		@return Valid to Complete	  */
+	public boolean isValidToComplete () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsValidToComplete);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	public org.compiere.model.I_AD_Column getLocator_Column() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
+			.getPO(getLocator_Column_ID(), get_TrxName());	}
+
+	/** Set Locator Column.
+		@param Locator_Column_ID Locator Column	  */
+	public void setLocator_Column_ID (int Locator_Column_ID)
+	{
+		if (Locator_Column_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_Locator_Column_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_Locator_Column_ID, Integer.valueOf(Locator_Column_ID));
+	}
+
+	/** Get Locator Column.
+		@return Locator Column	  */
+	public int getLocator_Column_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_Locator_Column_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
@@ -174,6 +242,34 @@ public class X_LVE_WarehouseProduct extends PO implements I_LVE_WarehouseProduct
     {
         return new KeyNamePair(get_ID(), getName());
     }
+
+	public org.compiere.model.I_AD_Column getParent_Column() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_Column)MTable.get(getCtx(), org.compiere.model.I_AD_Column.Table_Name)
+			.getPO(getParent_Column_ID(), get_TrxName());	}
+
+	/** Set Parent Column.
+		@param Parent_Column_ID 
+		The link column on the parent tab.
+	  */
+	public void setParent_Column_ID (int Parent_Column_ID)
+	{
+		if (Parent_Column_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_Parent_Column_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_Parent_Column_ID, Integer.valueOf(Parent_Column_ID));
+	}
+
+	/** Get Parent Column.
+		@return The link column on the parent tab.
+	  */
+	public int getParent_Column_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_Parent_Column_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	/** Set Process Now.
 		@param Processing Process Now	  */

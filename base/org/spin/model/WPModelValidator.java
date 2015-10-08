@@ -16,22 +16,13 @@
  *****************************************************************************/
 package org.spin.model;
 
-import java.math.BigDecimal;
-
-import org.compiere.model.I_C_Cash;
 import org.compiere.model.MClient;
-import org.compiere.model.MColumn;
-import org.compiere.model.MInvoice;
-import org.compiere.model.MStorage;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
 import org.compiere.model.PO;
 import org.compiere.util.CLogger;
 import org.compiere.util.DB;
-import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
-import org.compiere.util.Msg;
-
 /**
  * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 26/07/2014, 13:17:14
  *
@@ -60,9 +51,6 @@ public class WPModelValidator implements ModelValidator {
 		} else {
 			log.info("Initializing global validator: " + this.toString());
 		}
-		//	Add Timing change in C_Order and C_Invoice
-		engine.addDocValidate(MInvoice.Table_Name, this);
-		engine.addDocValidate(I_C_Cash.Table_Name, this);
 		//	Add Warehouse Product Listener
 		addWPListener(engine, this);
 	}
@@ -80,19 +68,6 @@ public class WPModelValidator implements ModelValidator {
 
 	@Override
 	public String modelChange(PO po, int type) throws Exception {
-		String msg = validWarehouseProduct(po, type);
-		return msg;
-	}
-	
-	/**
-	 * Valid Warehouse Product Configuration
-	 * @author <a href="mailto:yamelsenih@gmail.com">Yamel Senih</a> 26/07/2014, 13:17:14
-	 * @param po
-	 * @param type
-	 * @return
-	 * @return String
-	 */
-	private String validWarehouseProduct(PO po, int type) {
 		//	Valid Null
 		if(po == null)
 			return null;
@@ -101,62 +76,20 @@ public class WPModelValidator implements ModelValidator {
 				&& type != TYPE_BEFORE_CHANGE)
 			return null;
 		//	
-		String msg = null;
-		//	do It
-		//	Get From Table
-		MLVEWarehouseProduct wProductConfig = MLVEWarehouseProduct
-				.getFromTable(po.getCtx(), po.get_Table_ID());
-		//	Valid Null
-		if(wProductConfig == null)
+		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po, false);
+		//	Dixon Martinez 2015-01-08
+		if(config == null) 
 			return null;
-		//	Get Column Names
-		String m_Product_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getProduct_Column_ID());
-		String m_Attribute_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getAttribute_Column_ID());
-		String m_Warehouse_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getWarehouse_Column_ID());
-		String m_Qty_Column = MColumn.getColumnName(po.getCtx(), wProductConfig.getQty_Column_ID());
-		//	Get Values
-		int m_AD_Org_ID = po.getAD_Org_ID();
-		int m_M_Product_ID = po.get_ValueAsInt(m_Product_Column);
-		int m_M_AttributeSetInstance_ID = po.get_ValueAsInt(m_Attribute_Column);
-		int m_M_Warehouse_ID = po.get_ValueAsInt(m_Warehouse_Column);
-		int m_OldWarehouse_ID = po.get_ValueOldAsInt(m_Warehouse_Column);
-		BigDecimal m_Qty = (BigDecimal) po.get_Value(m_Qty_Column);
-		if(m_Qty == null)
-			m_Qty = Env.ZERO;
-		//	Valid Configuration
-		MLVEWarehouseProductLine configLine = MLVEWarehouseProduct
-				.getWarehouseProduct(po.getCtx(), po.get_Table_ID(), m_AD_Org_ID, m_M_Product_ID, 0,po.get_TrxName());
-		if(configLine == null)
-			return null;
-		//	Before New
-		if(type == TYPE_BEFORE_NEW) {
-			//	Set Warehouse
-			po.set_ValueOfColumn(m_Warehouse_Column, configLine.getM_Warehouse_ID());
-			//	Valid Stock
-		} else if(type == TYPE_BEFORE_CHANGE) {
-			configLine = MLVEWarehouseProduct.getWarehouseProduct(po.getCtx(), po.get_Table_ID(), 
-					m_AD_Org_ID, m_M_Product_ID, m_OldWarehouse_ID,po.get_TrxName());
-			if(configLine == null)
-				return null;
-			m_M_Warehouse_ID = configLine.getM_Warehouse_ID();
-			//	Valid Mandatory
-			if(configLine.isAlwaysSetMandatory())
-				po.set_ValueOfColumn(m_Warehouse_Column, m_OldWarehouse_ID);
-		}
-		//	Valid Stock
-		if(configLine.isMustBeStocked()) {
-			BigDecimal available = MStorage.getQtyAvailable
-					(m_M_Warehouse_ID, 0, m_M_Product_ID, m_M_AttributeSetInstance_ID, null);
-			if (available == null)
-				available = Env.ZERO;
-			if (available.signum() == 0)
-				msg = "@NoQtyAvailable@";
-			else if (available.compareTo(m_Qty) < 0)
-				msg = "@InsufficientQtyAvailable@ [@QtyAvailable@ = " + available.toString() 
-							+ " @Qty@ = " + m_Qty + " @Difference@ = " + m_Qty.subtract(available) + "]";
+		//	End Dixon Martinez
+		//	
+		if(type == TYPE_BEFORE_NEW
+				|| type == TYPE_BEFORE_CHANGE
+				&& !config.isValidToComplete()) {
+			//	Valid
+			config.validOnSave(type == TYPE_BEFORE_NEW);
 		}
 		//	Return
-		return Msg.parseTranslation(po.getCtx(), msg);
+		return config.getErrorMsgTranslate();
 	}
 	
 	/**
@@ -171,11 +104,16 @@ public class WPModelValidator implements ModelValidator {
 		if(engine == null
 				|| listener == null)
 			return;
-		KeyNamePair [] tables = DB.getKeyNamePairs("SELECT t.AD_Table_ID, t.TableName " +
+		KeyNamePair [] tables = DB.getKeyNamePairs("SELECT CASE " + 
+				"WHEN wp.IsValidToComplete = 'Y' THEN 1 ELSE -1 END " +
+				", CASE WHEN wp.IsValidToComplete = 'Y' " + 
+				"THEN replace(c.ColumnName, '_ID', '') ELSE t.TableName END TableName " + 
 				"FROM LVE_WarehouseProduct wp " +
 				"INNER JOIN AD_Table t ON(t.AD_Table_ID = wp.AD_Table_ID) " +
+				"LEFT JOIN AD_Column c ON(c.AD_Column_ID = wp.Parent_Column_ID) " + 
 				"WHERE wp.AD_Client_ID = ? " +
-				"GROUP BY t.AD_Table_ID, t.TableName " +
+				"AND wp.IsActive = 'Y' " +
+				"GROUP BY wp.IsValidToComplete, t.TableName, c.ColumnName " +
 				"ORDER BY t.TableName", false, getAD_Client_ID());
 		//	Valid Tables
 		if(tables == null)
@@ -183,13 +121,35 @@ public class WPModelValidator implements ModelValidator {
 		//	Iterate over tables
 		for (KeyNamePair table : tables) {
 			//	Add Listener
-			engine.addModelChange(table.getName(), listener);
+			if(table.getKey() == -1)
+				engine.addModelChange(table.getName(), listener);
+			else if(table.getKey() == 1
+					&& table.getName() != null)
+				engine.addDocValidate(table.getName(), listener);
 			log.fine("Table Added=" + table.toString());
 		}
 	}
 
 	@Override
 	public String docValidate(PO po, int timing) {
-		return null;
+		//	Valid Null
+		if(po == null)
+			return null;
+		//	
+		if(timing != TIMING_BEFORE_COMPLETE)
+			return null;
+		//	
+		MLVEWarehouseProduct config = MLVEWarehouseProduct.getFromPO(po, false);
+		//	Valid Null
+		if(config == null)
+			return null;
+		//	
+		if(timing == TIMING_BEFORE_COMPLETE
+				&& config.isValidToComplete()) {
+			//	Valid
+			config.validOnComplete();
+		}
+		//	Return
+		return config.getErrorMsgTranslate();
 	}
 }

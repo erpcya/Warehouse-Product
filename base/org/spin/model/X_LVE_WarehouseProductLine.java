@@ -31,7 +31,7 @@ public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehousePro
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20140727L;
+	private static final long serialVersionUID = 20141230L;
 
     /** Standard Constructor */
     public X_LVE_WarehouseProductLine (Properties ctx, int LVE_WarehouseProductLine_ID, String trxName)
@@ -42,7 +42,6 @@ public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehousePro
 			setLVE_WarehouseProduct_ID (0);
 			setLVE_WarehouseProductLine_ID (0);
 			setM_Product_ID (0);
-			setM_Warehouse_ID (0);
         } */
     }
 
@@ -112,6 +111,27 @@ public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehousePro
 		return false;
 	}
 
+	/** Set Is Set Warehouse.
+		@param IsSetWarehouse Is Set Warehouse	  */
+	public void setIsSetWarehouse (boolean IsSetWarehouse)
+	{
+		set_Value (COLUMNNAME_IsSetWarehouse, Boolean.valueOf(IsSetWarehouse));
+	}
+
+	/** Get Is Set Warehouse.
+		@return Is Set Warehouse	  */
+	public boolean isSetWarehouse () 
+	{
+		Object oo = get_Value(COLUMNNAME_IsSetWarehouse);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
 	public org.spin.model.I_LVE_WarehouseProduct getLVE_WarehouseProduct() throws RuntimeException
     {
 		return (org.spin.model.I_LVE_WarehouseProduct)MTable.get(getCtx(), org.spin.model.I_LVE_WarehouseProduct.Table_Name)
@@ -152,6 +172,34 @@ public class X_LVE_WarehouseProductLine extends PO implements I_LVE_WarehousePro
 	public int getLVE_WarehouseProductLine_ID () 
 	{
 		Integer ii = (Integer)get_Value(COLUMNNAME_LVE_WarehouseProductLine_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_M_Locator getM_Locator() throws RuntimeException
+    {
+		return (org.compiere.model.I_M_Locator)MTable.get(getCtx(), org.compiere.model.I_M_Locator.Table_Name)
+			.getPO(getM_Locator_ID(), get_TrxName());	}
+
+	/** Set Locator.
+		@param M_Locator_ID 
+		Warehouse Locator
+	  */
+	public void setM_Locator_ID (int M_Locator_ID)
+	{
+		if (M_Locator_ID < 1) 
+			set_ValueNoCheck (COLUMNNAME_M_Locator_ID, null);
+		else 
+			set_ValueNoCheck (COLUMNNAME_M_Locator_ID, Integer.valueOf(M_Locator_ID));
+	}
+
+	/** Get Locator.
+		@return Warehouse Locator
+	  */
+	public int getM_Locator_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_M_Locator_ID);
 		if (ii == null)
 			 return 0;
 		return ii.intValue();

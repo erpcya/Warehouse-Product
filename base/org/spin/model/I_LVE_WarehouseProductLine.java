@@ -114,6 +114,15 @@ public interface I_LVE_WarehouseProductLine
 	/** Get Is Always Set Mandatory	  */
 	public boolean isAlwaysSetMandatory();
 
+    /** Column name IsSetWarehouse */
+    public static final String COLUMNNAME_IsSetWarehouse = "IsSetWarehouse";
+
+	/** Set Is Set Warehouse	  */
+	public void setIsSetWarehouse (boolean IsSetWarehouse);
+
+	/** Get Is Set Warehouse	  */
+	public boolean isSetWarehouse();
+
     /** Column name LVE_WarehouseProduct_ID */
     public static final String COLUMNNAME_LVE_WarehouseProduct_ID = "LVE_WarehouseProduct_ID";
 
@@ -133,6 +142,21 @@ public interface I_LVE_WarehouseProductLine
 
 	/** Get Warehouse Product Line	  */
 	public int getLVE_WarehouseProductLine_ID();
+
+    /** Column name M_Locator_ID */
+    public static final String COLUMNNAME_M_Locator_ID = "M_Locator_ID";
+
+	/** Set Locator.
+	  * Warehouse Locator
+	  */
+	public void setM_Locator_ID (int M_Locator_ID);
+
+	/** Get Locator.
+	  * Warehouse Locator
+	  */
+	public int getM_Locator_ID();
+
+	public org.compiere.model.I_M_Locator getM_Locator() throws RuntimeException;
 
     /** Column name M_Product_ID */
     public static final String COLUMNNAME_M_Product_ID = "M_Product_ID";

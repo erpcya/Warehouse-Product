@@ -118,6 +118,39 @@ public interface I_LVE_WarehouseProduct
 	  */
 	public boolean isActive();
 
+    /** Column name IsSOTrx */
+    public static final String COLUMNNAME_IsSOTrx = "IsSOTrx";
+
+	/** Set Sales Transaction.
+	  * This is a Sales Transaction
+	  */
+	public void setIsSOTrx (boolean IsSOTrx);
+
+	/** Get Sales Transaction.
+	  * This is a Sales Transaction
+	  */
+	public boolean isSOTrx();
+
+    /** Column name IsValidToComplete */
+    public static final String COLUMNNAME_IsValidToComplete = "IsValidToComplete";
+
+	/** Set Valid to Complete	  */
+	public void setIsValidToComplete (boolean IsValidToComplete);
+
+	/** Get Valid to Complete	  */
+	public boolean isValidToComplete();
+
+    /** Column name Locator_Column_ID */
+    public static final String COLUMNNAME_Locator_Column_ID = "Locator_Column_ID";
+
+	/** Set Locator Column	  */
+	public void setLocator_Column_ID (int Locator_Column_ID);
+
+	/** Get Locator Column	  */
+	public int getLocator_Column_ID();
+
+	public org.compiere.model.I_AD_Column getLocator_Column() throws RuntimeException;
+
     /** Column name LVE_WarehouseProduct_ID */
     public static final String COLUMNNAME_LVE_WarehouseProduct_ID = "LVE_WarehouseProduct_ID";
 
@@ -139,6 +172,21 @@ public interface I_LVE_WarehouseProduct
 	  * Alphanumeric identifier of the entity
 	  */
 	public String getName();
+
+    /** Column name Parent_Column_ID */
+    public static final String COLUMNNAME_Parent_Column_ID = "Parent_Column_ID";
+
+	/** Set Parent Column.
+	  * The link column on the parent tab.
+	  */
+	public void setParent_Column_ID (int Parent_Column_ID);
+
+	/** Get Parent Column.
+	  * The link column on the parent tab.
+	  */
+	public int getParent_Column_ID();
+
+	public org.compiere.model.I_AD_Column getParent_Column() throws RuntimeException;
 
     /** Column name Processing */
     public static final String COLUMNNAME_Processing = "Processing";
