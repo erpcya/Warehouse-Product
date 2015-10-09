@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="base"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/adempiere_370_Fork"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/adempiere_370"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
